@@ -4,5 +4,6 @@
     "strict": true,
     "rootDir": ".",
     "isolatedModules": true
-  }
+  },
+  "exclude": ["__tests__", "node_modules"]
 }

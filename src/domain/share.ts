@@ -39,7 +39,7 @@ export const DEFAULT_COLUMN_MAPPING: Record<string, string> = {
 };
 
 function parseWeekday(value: string): number {
-  const map: Record<string, number> = { '一': 1, '1': 1, '周一': 1, '一': 1, '二': 2, '2': 2, '三': 3, '3': 3, '四': 4, '4': 4, '五': 5, '5': 5, '六': 6, '6': 6, '日': 7, '天': 7, '7': 7 };
+  const map: Record<string, number> = { '一': 1, '1': 1, '周一': 1, '二': 2, '2': 2, '三': 3, '3': 3, '四': 4, '4': 4, '五': 5, '5': 5, '六': 6, '6': 6, '日': 7, '天': 7, '7': 7 };
   const v = String(value ?? '').trim();
   if (map[v]) return map[v];
   const num = parseInt(v, 10);
