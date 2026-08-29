@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert,
+  View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Modal,
 } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import * as FileSystem from 'expo-file-system';
+import * as DocumentPicker from 'expo-document-picker';
+import * as XLSX from 'xlsx';
 import { useAppStore } from '../store/appStore';
 import { Course, WeeksRule } from '../types';
-import { serializeSchedule, parseSchedule } from '../domain/share';
+import { serializeSchedule, parseSchedule, mapExcelRows } from '../domain/share';
 
 const WEEK_NAMES = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
@@ -18,6 +22,7 @@ export default function ScheduleEditScreen() {
   const [rule, setRule] = useState('all');
   const [weeks, setWeeks] = useState('1,3,5');
   const [importText, setImportText] = useState('');
+  const [qrValue, setQrValue] = useState<string | null>(null);
 
   function add() {
     if (!name.trim()) return;
@@ -45,6 +50,25 @@ export default function ScheduleEditScreen() {
       importCourses(parsed.courses);
       setImportText('');
       Alert.alert('导入成功', '已导入 ' + parsed.courses.length + ' 门课');
+    } catch (e) {
+      Alert.alert('导入失败', String(e));
+    }
+  }
+
+  async function importExcel() {
+    try {
+      const res = await DocumentPicker.getDocumentAsync({
+        type: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'],
+      });
+      if (res.canceled) return;
+      const uri = res.assets[0].uri;
+      const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+      const wb = XLSX.read(b64, { type: 'base64' });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet);
+      const cs = mapExcelRows(rows);
+      importCourses(cs);
+      Alert.alert('导入成功', '已导入 ' + cs.length + ' 门课');
     } catch (e) {
       Alert.alert('导入失败', String(e));
     }
@@ -93,7 +117,13 @@ export default function ScheduleEditScreen() {
           <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#777' }]} onPress={importJson}>
             <Text style={styles.addTxt}>导入JSON</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#c77' }]} onPress={importExcel}>
+            <Text style={styles.addTxt}>导入Excel</Text>
+          </TouchableOpacity>
         </View>
+        <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#2e7d32' }]} onPress={() => setQrValue(serializeSchedule({ courses, setting }))}>
+          <Text style={styles.addTxt}>生成二维码</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.card}>
@@ -119,6 +149,17 @@ export default function ScheduleEditScreen() {
           {courses.filter((c) => c.weekday === wd).length === 0 ? <Text style={styles.empty}>无</Text> : null}
         </View>
       ))}
+      <Modal visible={!!qrValue} transparent animationType="slide" onRequestClose={() => setQrValue(null)}>
+        <View style={styles.qrModal}>
+          <View style={styles.qrBox}>
+            <Text style={styles.qrTitle}>扫码导入课表</Text>
+            {qrValue ? <QRCode value={qrValue} size={220} /> : null}
+            <TouchableOpacity style={[styles.addBtn, styles.qrClose]} onPress={() => setQrValue(null)}>
+              <Text style={styles.addTxt}>关闭</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -139,4 +180,8 @@ const styles = StyleSheet.create({
   courseTxt: { flex: 1 },
   del: { color: '#c00' },
   empty: { color: '#aaa' },
+  qrModal: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  qrBox: { backgroundColor: '#fff', padding: 20, borderRadius: 12, alignItems: 'center' },
+  qrTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
+  qrClose: { marginTop: 12 },
 });
