@@ -6,6 +6,7 @@ import QRCode from 'react-native-qrcode-svg';
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useAppStore } from '../store/appStore';
 import { Course, WeeksRule } from '../types';
 import { serializeSchedule, parseSchedule, mapExcelRows } from '../domain/share';
@@ -23,6 +24,8 @@ export default function ScheduleEditScreen() {
   const [weeks, setWeeks] = useState('1,3,5');
   const [importText, setImportText] = useState('');
   const [qrValue, setQrValue] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
 
   function add() {
     if (!name.trim()) return;
@@ -74,6 +77,29 @@ export default function ScheduleEditScreen() {
     }
   }
 
+  async function startScan() {
+    if (!permission) return;
+    if (!permission.granted) {
+      const p = await requestPermission();
+      if (!p.granted) {
+        Alert.alert('需要相机权限', '请在系统设置里允许相机');
+        return;
+      }
+    }
+    setScanning(true);
+  }
+
+  function onScanned(data: string) {
+    setScanning(false);
+    try {
+      const parsed = parseSchedule(data);
+      importCourses(parsed.courses);
+      Alert.alert('扫码导入成功', '已导入 ' + parsed.courses.length + ' 门课');
+    } catch (e) {
+      Alert.alert('扫码内容不是有效课表', String(e));
+    }
+  }
+
   const groups = [...Array(setting.showWeekend ? 7 : 5).keys()].map((i) => i + 1);
   const periodTimes = [];
   for (let i = 1; i <= setting.periodsPerDay; i++) periodTimes.push(i);
@@ -120,6 +146,9 @@ export default function ScheduleEditScreen() {
           <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#c77' }]} onPress={importExcel}>
             <Text style={styles.addTxt}>导入Excel</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#6a3d9a' }]} onPress={startScan}>
+            <Text style={styles.addTxt}>扫码导入</Text>
+          </TouchableOpacity>
         </View>
         <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#2e7d32' }]} onPress={() => setQrValue(serializeSchedule({ courses, setting }))}>
           <Text style={styles.addTxt}>生成二维码</Text>
@@ -155,6 +184,23 @@ export default function ScheduleEditScreen() {
             <Text style={styles.qrTitle}>扫码导入课表</Text>
             {qrValue ? <QRCode value={qrValue} size={220} /> : null}
             <TouchableOpacity style={[styles.addBtn, styles.qrClose]} onPress={() => setQrValue(null)}>
+              <Text style={styles.addTxt}>关闭</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal visible={scanning} transparent animationType="slide" onRequestClose={() => setScanning(false)}>
+        <View style={styles.qrModal}>
+          <View style={styles.qrBox}>
+            <Text style={styles.qrTitle}>扫描对方课表二维码</Text>
+            {scanning ? (
+              <CameraView
+                style={{ width: 260, height: 260 }}
+                barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+                onBarcodeScanned={(r) => onScanned(r.data)}
+              />
+            ) : null}
+            <TouchableOpacity style={[styles.addBtn, styles.qrClose]} onPress={() => setScanning(false)}>
               <Text style={styles.addTxt}>关闭</Text>
             </TouchableOpacity>
           </View>
