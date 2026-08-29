@@ -48,3 +48,24 @@ export function restoreFromBackup(data: unknown): BackupData {
   }
   return data as BackupData;
 }
+export const AUTO_BACKUP_INTERVAL_MS = 24 * 3600 * 1000;
+export const MAX_AUTO_BACKUPS = 30;
+
+export function shouldAutoBackup(
+  lastBackupAtISO: string | null,
+  now: number,
+  intervalMs: number = AUTO_BACKUP_INTERVAL_MS,
+): boolean {
+  if (!lastBackupAtISO) return true;
+  return now - new Date(lastBackupAtISO).getTime() >= intervalMs;
+}
+
+export function pruneBackups<T extends { id: string; keepForever: boolean; createdAt: string }>(
+  backups: T[],
+  max: number,
+): T[] {
+  const auto = backups.filter((b) => !b.keepForever);
+  const kept = auto.slice(-max);
+  const keptIds = new Set(kept.map((b) => b.id));
+  return backups.filter((b) => b.keepForever || keptIds.has(b.id));
+}

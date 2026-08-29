@@ -33,6 +33,31 @@ npx tsc --noEmit  # 类型检查
 - 二维码分享：计划接入。
 
 ## GitHub / 发布
+
+- 公开仓库，源码 + Release（Android 打包 APK 用 EAS Build）。
+- CI：`.github/workflows/ci.yml` 自动跑单测与类型检查。
+
+### 推到 GitHub
+```bash
+git remote add origin https://github.com/你的用户名/h-course-table.git
+git branch -M main
+git push -u origin main
+```
+
+### 打包 APK（分享给朋友）
+```bash
+npm install -g eas-cli
+eas login
+eas build --platform android --profile preview
+```
+构建完成后，把生成的 APK 挂到 GitHub Release，或在 Expo 后台复制下载链接。
+
+### 打 Tag / Release
+```bash
+git tag -a v1.0.0 -m "第一个可分享版本"
+git push origin v1.0.0
+```
+
 - 公开仓库，源码 + Release（Android 打包 APK 用 EAS Build）。
 - CI：`.github/workflows/ci.yml` 自动跑单测与类型检查。
 

@@ -9,7 +9,7 @@ import {
   setCompleted as setCompletedFn,
   writeReview as writeReviewFn,
 } from '../domain/plans';
-import { restoreFromBackup } from '../domain/backup';
+import { restoreFromBackup, shouldAutoBackup, pruneBackups, MAX_AUTO_BACKUPS } from '../domain/backup';
 
 export interface BackupRecord {
   id: string;
@@ -33,6 +33,7 @@ interface AppState {
   plans: Plan[];
   notes: Note[];
   backups: BackupRecord[];
+  lastAutoBackupAt?: string;
   setSemester: (s: Semester | null) => void;
   setSetting: (s: ScheduleSetting) => void;
   addCourse: (c: Course) => void;
@@ -46,6 +47,7 @@ interface AppState {
   addNote: (n: Note) => void;
   removeNote: (id: string) => void;
   manualBackup: () => void;
+  maybeAutoBackup: () => void;
   restoreBackup: (data: BackupDataLike) => void;
   resetAll: () => void;
 }
@@ -59,6 +61,7 @@ export const useAppStore = create<AppState>()(
       plans: [],
       notes: [],
       backups: [],
+      lastAutoBackupAt: undefined,
       setSemester: (s) => set({ semester: s }),
       setSetting: (s) => set({ setting: s }),
       addCourse: (c) => set((st) => ({ courses: [...st.courses, c] })),
@@ -82,6 +85,19 @@ export const useAppStore = create<AppState>()(
           keepForever: false,
         };
         set((s) => ({ backups: [...s.backups, rec] }));
+      },
+      maybeAutoBackup: () => {
+        const st = get();
+        const now = Date.now();
+        if (!shouldAutoBackup(st.lastAutoBackupAt ?? null, now)) return;
+        const rec: BackupRecord = {
+          id: 'auto' + now,
+          createdAt: new Date(now).toISOString(),
+          type: 'auto',
+          keepForever: false,
+        };
+        const backups = pruneBackups([...st.backups, rec], MAX_AUTO_BACKUPS);
+        set({ backups, lastAutoBackupAt: new Date(now).toISOString() });
       },
       restoreBackup: (data) => {
         const restored = restoreFromBackup(data);
