@@ -47,6 +47,19 @@ export function coursesOnDay(courses: Course[], weekday: number, week: number): 
   );
 }
 
+export function bigPeriodRange(
+  setting: ScheduleSetting,
+  bigIndex: number,
+): { start: string; end: string } | undefined {
+  const groups = bigPeriodGroups(setting.periodsPerDay, setting.bigPeriodSize);
+  const g = groups.find((x) => x.bigIndex === bigIndex);
+  if (!g || g.smalls.length === 0) return undefined;
+  const first = setting.periodTimes[g.smalls[0] - 1];
+  const last = setting.periodTimes[g.smalls[g.smalls.length - 1] - 1];
+  if (!first || !last) return undefined;
+  return { start: first.start, end: last.end };
+}
+
 export function buildDayTimeline(
   courses: Course[],
   weekday: number,
@@ -77,7 +90,7 @@ export function buildWeekGrid(
 ): WeekGridRow[] {
   const groups = bigPeriodGroups(setting.periodsPerDay, setting.bigPeriodSize);
   return groups.map((g) => {
-    const pt = setting.periodTimes[g.bigIndex - 1];
+    const pt = bigPeriodRange(setting, g.bigIndex);
     return {
       bigPeriod: g.bigIndex,
       start: pt?.start,

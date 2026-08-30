@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useAppStore } from '../store/appStore';
 import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
-import { buildDayTimeline, buildWeekGrid } from '../domain/schedule';
+import { buildDayTimeline, buildWeekGrid, bigPeriodRange } from '../domain/schedule';
 import { coursesForSemester } from '../domain/semesters';
 import CourseEditModal from '../components/CourseEditModal';
 import TodayPlanScreen from './TodayPlanScreen';
@@ -52,7 +52,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
     return (
       <View>
         {dayTimeline.map((slot) => {
-          const pt = setting.periodTimes[slot.bigIndex - 1];
+          const pt = bigPeriodRange(setting, slot.bigIndex);
           return (
             <TouchableOpacity key={slot.bigIndex} style={styles.slot} onPress={() => setEditCell({ weekday: schWd, bigPeriod: slot.bigIndex, course: slot.courses[0] })}>
               <Text style={styles.slotLabel}>{'第 ' + slot.bigIndex + ' 大节' + (pt && pt.start ? '  ' + pt.start + '-' + pt.end : '')}</Text>

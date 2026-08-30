@@ -46,9 +46,12 @@ export default function SettingsScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cap}>学期</Text>
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="学期名（如 2026 秋）" value={sName} onChangeText={setSName} />
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="开学日期 yyyy-mm-dd" value={sStart} onChangeText={setSStart} />
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="总周数" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
+        <Text style={styles.fieldLabel}>学期名</Text>
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="如 2026 秋" value={sName} onChangeText={setSName} />
+        <Text style={styles.fieldLabel}>开学时间</Text>
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="yyyy-mm-dd" value={sStart} onChangeText={setSStart} />
+        <Text style={styles.fieldLabel}>总周数</Text>
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="如 16" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
         <TouchableOpacity style={styles.btn} onPress={saveSemester}><Text style={styles.btnTxt}>保存学期</Text></TouchableOpacity>
         {msg ? <Text style={styles.msg}>{msg}</Text> : null}
       </View>
@@ -104,6 +107,7 @@ const styles = StyleSheet.create({
   head: { fontSize: 22, fontWeight: '700', marginBottom: 10 },
   card: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 10 },
   cap: { fontWeight: '700', marginBottom: 6 },
+  fieldLabel: { fontSize: 12, color: '#666', marginTop: 6, marginBottom: 2 },
   input: { borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 6, marginBottom: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 6 },
   lbl: { fontSize: 14, marginBottom: 6 },

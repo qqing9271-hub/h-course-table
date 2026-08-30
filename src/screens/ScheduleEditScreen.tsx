@@ -12,6 +12,7 @@ import { useAppStore } from '../store/appStore';
 import { parseScheduleGrid } from '../domain/excelGrid';
 import { serializeSchedule, parseSchedule } from '../domain/share';
 import { bigPeriodGroups } from '../domain/schedule';
+import { DEFAULT_PERIOD_TIMES } from '../constants';
 import { Course } from '../types';
 
 function todayStr(): string {
@@ -34,11 +35,11 @@ export default function ScheduleEditScreen() {
 
   const groups = bigPeriodGroups(setting.periodsPerDay, setting.bigPeriodSize);
 
-  function updatePeriodTime(bigIndex: number, key: 'start' | 'end', value: string) {
+  function updatePeriodTime(small: number, key: 'start' | 'end', value: string) {
     const arr = setting.periodTimes.map((p) => ({ ...p }));
-    while (arr.length < groups.length) arr.push({ start: '08:00', end: '09:00' });
-    const pt = arr[bigIndex - 1] ?? { start: '', end: '' };
-    arr[bigIndex - 1] = { ...pt, [key]: value };
+    while (arr.length < setting.periodsPerDay) arr.push({ start: '08:00', end: '08:45' });
+    const pt = arr[small - 1] ?? { start: '', end: '' };
+    arr[small - 1] = { ...pt, [key]: value };
     setSetting({ ...setting, periodTimes: arr });
   }
 
