@@ -4,7 +4,6 @@ import {
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import * as FileSystem from 'expo-file-system/legacy';
-import { File } from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -47,6 +46,7 @@ export default function ScheduleEditScreen() {
     try {
       const res = await DocumentPicker.getDocumentAsync({
         type: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'],
+        copyToCacheDirectory: false,
       });
       if (res.canceled) return;
       const uri = res.assets[0].uri;
@@ -56,13 +56,11 @@ export default function ScheduleEditScreen() {
         const buf = await resp.arrayBuffer();
         wb = XLSX.read(buf, { type: 'array' });
       } else {
-        try {
-          const buf = await new File(uri).arrayBuffer();
-          wb = XLSX.read(buf, { type: 'array' });
-        } catch (e2) {
-          const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-          wb = XLSX.read(b64, { type: 'base64' });
-        }
+        const pickedName = res.assets[0].name || 'import.xls';
+        const cachePath = (FileSystem.cacheDirectory || '') + 'import_' + Date.now() + '_' + pickedName;
+        await FileSystem.copyAsync({ from: uri, to: cachePath });
+        const b64 = await FileSystem.readAsStringAsync(cachePath, { encoding: FileSystem.EncodingType.Base64 });
+        wb = XLSX.read(b64, { type: 'base64' });
       }
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const grid = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 }) as string[][];
