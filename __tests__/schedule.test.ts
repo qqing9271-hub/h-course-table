@@ -14,6 +14,7 @@ test('AC-S02: 默认一天 10 小节(5 大节)，两小节=一大节，含默认
   expect(s.periodsPerDay).toBe(10);
   expect(s.bigPeriodSize).toBe(2);
   expect(s.periodTimes).toEqual(DEFAULT_PERIOD_TIMES);
+  expect(s.periodTimes.length).toBe(10);
   const groups = bigPeriodGroups(s.periodsPerDay, s.bigPeriodSize);
   expect(groups).toHaveLength(5);
   expect(groups[0].smalls).toEqual([1, 2]);

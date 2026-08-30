@@ -3,12 +3,18 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert 
 import { useAppStore } from '../store/appStore';
 import { createBackupData, restoreFromBackup } from '../domain/backup';
 import { currentWeek } from '../domain/semester';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
+import * as XLSX from 'xlsx';
+import { Platform } from 'react-native';
+import { parseScheduleGrid } from '../domain/excelGrid';
 
 export default function SettingsScreen() {
   const {
     semester, setSemester, setSetting,
     semesters, activeSemesterId, addSemester, removeSemesterAction, setActiveSemester,
     setting, courses, plans, notes, backups, manualBackup, restoreBackup,
+    replaceCoursesForSemester,
   } = useAppStore();
   const [sName, setSName] = useState(semester?.name ?? '');
   const [sStart, setSStart] = useState(semester?.startDate ?? '');
@@ -21,6 +27,33 @@ export default function SettingsScreen() {
     addSemester({ id: semester?.id ?? 's' + Date.now(), name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 });
     setMsg('✅ 已保存学期：当前第 ' + currentWeek({ id: 's', name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 }, new Date().toISOString().slice(0, 10)) + ' 周');
     Alert.alert('已保存学期');
+  }
+
+  async function importExcelFor(semesterId: string) {
+    try {
+      const res = await DocumentPicker.getDocumentAsync({
+        type: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'],
+      });
+      if (res.canceled) return;
+      const uri = res.assets[0].uri;
+      let wb: any;
+      if (Platform.OS === 'web') {
+        const resp = await fetch(uri);
+        const buf = await resp.arrayBuffer();
+        wb = XLSX.read(buf, { type: 'array' });
+      } else {
+        const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+        wb = XLSX.read(b64, { type: 'base64' });
+      }
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const grid = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 }) as string[][];
+      const { courses: cs } = parseScheduleGrid(grid);
+      replaceCoursesForSemester(cs, semesterId);
+      setActiveSemester(semesterId);
+      setMsg('✅ 已导入 ' + cs.length + ' 门课到该学期');
+    } catch (e) {
+      setMsg('❌ 导入失败：' + String(e));
+    }
   }
 
   function doBackup() {
@@ -65,6 +98,7 @@ export default function SettingsScreen() {
               {s.id !== activeSemesterId ? (
                 <TouchableOpacity style={styles.smallBtn} onPress={() => setActiveSemester(s.id)}><Text>设为当前</Text></TouchableOpacity>
               ) : null}
+              <TouchableOpacity style={styles.smallBtn} onPress={() => importExcelFor(s.id)}><Text style={{ color: '#2e7d32' }}>导入课表</Text></TouchableOpacity>
               <TouchableOpacity style={styles.smallBtn} onPress={() => removeSemesterAction(s.id)}><Text style={{ color: '#c00' }}>删除</Text></TouchableOpacity>
             </View>
           </View>

@@ -26,7 +26,6 @@ export default function ScheduleEditScreen() {
     semesters, setActiveSemester,
     replaceCoursesForSemester,
   } = useAppStore();
-  const [importText, setImportText] = useState('');
   const [msg, setMsg] = useState('');
   const [qrValue, setQrValue] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
@@ -41,21 +40,6 @@ export default function ScheduleEditScreen() {
     const pt = arr[small - 1] ?? { start: '', end: '' };
     arr[small - 1] = { ...pt, [key]: value };
     setSetting({ ...setting, periodTimes: arr });
-  }
-
-  function exportJson() {
-    Alert.alert('导出的课表 JSON', serializeSchedule({ courses: [], setting, semester: semester ?? undefined }));
-  }
-
-  function importJson() {
-    try {
-      const parsed = parseSchedule(importText);
-      replaceCoursesForSemester(parsed.courses, semester?.id ?? 's' + Date.now());
-      setImportText('');
-      setMsg('✅ 已导入 ' + parsed.courses.length + ' 门课');
-    } catch (e) {
-      setMsg('❌ 导入失败：' + String(e));
-    }
   }
 
   async function importExcel() {
@@ -167,11 +151,6 @@ export default function ScheduleEditScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cap}>导入 / 导出课表</Text>
-        <TextInput style={[styles.input, { minHeight: 50 }]} multiline placeholder="粘贴分享/导出的课表 JSON" value={importText} onChangeText={setImportText} />
-        <View style={styles.row}>
-          <TouchableOpacity style={styles.addBtn} onPress={exportJson}><Text style={styles.addTxt}>导出JSON</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#777' }]} onPress={importJson}><Text style={styles.addTxt}>导入JSON</Text></TouchableOpacity>
-        </View>
         <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#c77' }]} onPress={importExcel}><Text style={styles.addTxt}>导入Excel</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#2e7d32' }]} onPress={() => setQrValue(serializeSchedule({ courses: [], setting, semester: semester ?? undefined }))}><Text style={styles.addTxt}>生成二维码</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#6a3d9a' }]} onPress={startScan}><Text style={styles.addTxt}>扫码导入</Text></TouchableOpacity>
