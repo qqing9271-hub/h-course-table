@@ -3,11 +3,9 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { useAppStore } from '../store/appStore';
 import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
 import { buildDayTimeline, buildWeekGrid } from '../domain/schedule';
-import { getPlansByDate } from '../domain/plans';
-import { Plan } from '../types';
+import TodayPlanScreen from './TodayPlanScreen';
 
 const WEEK_NAMES = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-const BOARD_LABELS: Record<Plan['board'], string> = { plan: '计划', doing: '进行中', done: '已完成' };
 
 function localDateStr(d: Date): string {
   const y = d.getFullYear();
@@ -20,7 +18,7 @@ function weekdayOne(d: Date): number {
 }
 
 export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
-  const { semester, setting, courses, plans, setSetting } = useAppStore();
+  const { semester, setting, courses, setSetting } = useAppStore();
   const [view, setView] = useState<'day' | 'week'>('day');
   const today = new Date();
   const dstr = localDateStr(today);
@@ -40,7 +38,6 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
   const displayDstr = localDateStr(displayDate);
   const displayWd = weekdayOne(displayDate);
   const displayWeek = inSemester ? validWeek : 1;
-  const todayPlans = getPlansByDate(plans, displayDstr);
 
   let weekText = '未设置学期';
   if (semester) {
@@ -149,20 +146,8 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
 
       {view === 'day' ? renderDay() : renderWeek()}
 
-      <View style={styles.planCard}>
-        <Text style={styles.planCardTitle}>今日计划 · {displayDstr}</Text>
-        {todayPlans.length === 0 ? (
-          <Text style={styles.empty}>还没有计划，点下面去计划页添加</Text>
-        ) : (
-          todayPlans.slice(0, 6).map((p) => (
-            <Text key={p.id} style={styles.planItem}>
-              {BOARD_LABELS[p.board]} · {p.title}{p.completed ? '  ✓' : ''}
-            </Text>
-          ))
-        )}
-        <TouchableOpacity style={styles.planBtn} onPress={() => goTo('plan')}>
-          <Text style={styles.planTxt}>打开今日计划</Text>
-        </TouchableOpacity>
+      <View style={styles.planArea}>
+        <TodayPlanScreen />
       </View>
     </View>
   );
@@ -198,9 +183,5 @@ const styles = StyleSheet.create({
   timeTxt: { fontWeight: '700', fontSize: 14 },
   timeSmall: { fontSize: 10, color: '#888', textAlign: 'center' },
   gridCell: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 2 },
-  planCard: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginTop: 10, marginBottom: 12 },
-  planCardTitle: { fontSize: 16, fontWeight: '700', marginBottom: 6 },
-  planItem: { fontSize: 14, color: '#333', marginBottom: 4 },
-  planBtn: { marginTop: 8, backgroundColor: '#4a90e2', padding: 12, borderRadius: 10, alignItems: 'center' },
-  planTxt: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  planArea: { flex: 1, marginTop: 8 },
 });

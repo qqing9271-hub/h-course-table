@@ -2,7 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import HomeScreen from './src/screens/HomeScreen';
-import TodayPlanScreen from './src/screens/TodayPlanScreen';
 import NotesScreen from './src/screens/NotesScreen';
 import ScheduleEditScreen from './src/screens/ScheduleEditScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
@@ -11,7 +10,6 @@ type Tab = 'home' | 'plan' | 'notes' | 'edit' | 'settings';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'home', label: '首页' },
-  { key: 'plan', label: '计划' },
   { key: 'notes', label: '随笔' },
   { key: 'edit', label: '课表' },
   { key: 'settings', label: '设置' },
@@ -24,7 +22,6 @@ export default function App() {
       <StatusBar style="auto" />
       <View style={{ flex: 1 }}>
         {tab === 'home' ? <HomeScreen goTo={(t) => setTab(t as Tab)} /> : null}
-        {tab === 'plan' ? <TodayPlanScreen /> : null}
         {tab === 'notes' ? <NotesScreen /> : null}
         {tab === 'edit' ? <ScheduleEditScreen /> : null}
         {tab === 'settings' ? <SettingsScreen /> : null}
