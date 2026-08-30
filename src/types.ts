@@ -42,6 +42,7 @@ export interface Plan {
   date: string; // yyyy-mm-dd
   title: string;
   content?: string;
+  time?: string; // HH:mm
   board: 'plan' | 'doing' | 'done';
   completed: boolean;
   review?: string;

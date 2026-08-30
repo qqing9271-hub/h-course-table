@@ -49,7 +49,7 @@ interface AppState {
   importCourses: (cs: Course[]) => void;
   replaceCourses: (cs: Course[]) => void;
   replaceCoursesForSemester: (cs: Course[], semesterId: string) => void;
-  addPlan: (date: string, title: string, content?: string) => void;
+  addPlan: (date: string, title: string, content?: string, time?: string) => void;
   movePlanAction: (id: string, board: Plan['board']) => void;
   completePlan: (id: string, done: boolean) => void;
   addReview: (id: string, review: string) => void;
@@ -111,8 +111,8 @@ export const useAppStore = create<AppState>()(
             ...cs.map((c) => ({ ...c, semesterId })),
           ],
         })),
-      addPlan: (date, title, content) =>
-        set((st) => ({ plans: [...st.plans, createPlan(date, title, content)] })),
+      addPlan: (date, title, content, time) =>
+        set((st) => ({ plans: [...st.plans, createPlan(date, title, content, 'plan', time)] })),
       movePlanAction: (id, board) => set((st) => ({ plans: movePlanFn(st.plans, id, board) })),
       completePlan: (id, done) => set((st) => ({ plans: setCompletedFn(st.plans, id, done) })),
       addReview: (id, review) => set((st) => ({ plans: writeReviewFn(st.plans, id, review) })),

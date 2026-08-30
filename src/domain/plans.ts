@@ -7,9 +7,10 @@ export function createPlan(
   title: string,
   content?: string,
   board: Plan['board'] = 'plan',
+  time?: string,
 ): Plan {
   seq += 1;
-  return { id: 'p' + seq, date, title, content, board, completed: false };
+  return { id: 'p' + seq, date, title, content, board, completed: false, time };
 }
 
 export function movePlan(plans: Plan[], id: string, board: Plan['board']): Plan[] {

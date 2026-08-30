@@ -12,6 +12,7 @@ import { useAppStore } from '../store/appStore';
 import { parseScheduleGrid } from '../domain/excelGrid';
 import { serializeSchedule, parseSchedule } from '../domain/share';
 import { bigPeriodGroups } from '../domain/schedule';
+import { Course } from '../types';
 
 function todayStr(): string {
   const d = new Date();
@@ -21,6 +22,7 @@ function todayStr(): string {
 export default function ScheduleEditScreen() {
   const {
     setting, setSetting, semester, setSemester, addSemester,
+    semesters, setActiveSemester,
     replaceCoursesForSemester,
   } = useAppStore();
   const [importText, setImportText] = useState('');
@@ -28,6 +30,7 @@ export default function ScheduleEditScreen() {
   const [qrValue, setQrValue] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
+  const [pickSem, setPickSem] = useState<{ courses: Course[]; name?: string } | null>(null);
 
   const groups = bigPeriodGroups(setting.periodsPerDay, setting.bigPeriodSize);
 
@@ -73,19 +76,29 @@ export default function ScheduleEditScreen() {
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const grid = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 }) as string[][];
       const { courses: cs, semesterName } = parseScheduleGrid(grid);
-      let targetSemId = semester?.id;
-      if (!targetSemId) {
-        const newSem = { id: 's' + Date.now(), name: semesterName || '导入学期', startDate: todayStr(), totalWeeks: 16 };
-        addSemester(newSem);
-        targetSemId = newSem.id;
-      } else if (semesterName && semester) {
-        setSemester({ ...semester, name: semesterName });
+      if (semesters.length > 0) {
+        setPickSem({ courses: cs, name: semesterName });
+      } else {
+        doImport(cs, null, semesterName);
       }
-      replaceCoursesForSemester(cs, targetSemId);
-      setMsg('✅ Excel 已导入 ' + cs.length + ' 门课' + (semesterName ? '（' + semesterName + '）' : ''));
     } catch (e) {
       setMsg('❌ 导入失败：' + String(e));
     }
+  }
+
+  function doImport(cs: Course[], targetSemId: string | null, semesterName?: string) {
+    let id = targetSemId;
+    if (!id) {
+      const newSem = { id: 's' + Date.now(), name: semesterName || '导入学期', startDate: todayStr(), totalWeeks: 16 };
+      addSemester(newSem);
+      id = newSem.id;
+    } else if (semesterName && semester) {
+      setSemester({ ...semester, name: semesterName });
+    }
+    replaceCoursesForSemester(cs, id);
+    setActiveSemester(id);
+    setPickSem(null);
+    setMsg('✅ 已导入 ' + cs.length + ' 门课' + (semesterName ? '（' + semesterName + '）' : ''));
   }
 
   async function startScan() {
@@ -183,6 +196,22 @@ export default function ScheduleEditScreen() {
           </View>
         </View>
       </Modal>
+      <Modal visible={!!pickSem} transparent animationType="slide" onRequestClose={() => setPickSem(null)}>
+        <View style={styles.qrModal}>
+          <View style={styles.qrBox}>
+            <Text style={styles.qrTitle}>导入到哪个学期？</Text>
+            {semesters.map((s) => (
+              <TouchableOpacity key={s.id} style={styles.semChoice} onPress={() => { if (pickSem) doImport(pickSem.courses, s.id, pickSem.name); }}>
+                <Text>{s.name}{s.id === semester?.id ? '（当前）' : ''}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.semChoice} onPress={() => { if (pickSem) doImport(pickSem.courses, null, pickSem.name); }}>
+              <Text>＋ 新建学期（用课表学期名）</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.addBtn} onPress={() => setPickSem(null)}><Text style={styles.addTxt}>取消</Text></TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -204,4 +233,5 @@ const styles = StyleSheet.create({
   qrModal: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   qrBox: { backgroundColor: '#fff', padding: 20, borderRadius: 12, alignItems: 'center' },
   qrTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
+  semChoice: { backgroundColor: '#f0f0f0', borderRadius: 8, padding: 10, marginBottom: 8, alignItems: 'center' },
 });
