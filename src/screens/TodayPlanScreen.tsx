@@ -20,10 +20,13 @@ const BOARDS: Plan['board'][] = ['plan', 'doing', 'done'];
 const LABELS: Record<Plan['board'], string> = { plan: '计划', doing: '进行中', done: '已完成' };
 
 export default function TodayPlanScreen() {
-  const { plans, addPlan, movePlanAction, completePlan, addReview } = useAppStore();
+  const { plans, addPlan, movePlanAction, completePlan, addReview, updatePlan } = useAppStore();
   const [date, setDate] = useState(localDateStr(new Date()));
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
   const today = getPlansByDate(plans, date);
 
   function add() {
@@ -34,28 +37,45 @@ export default function TodayPlanScreen() {
   }
 
   function planCard(p: Plan) {
+    const editing = editingId === p.id;
     return (
       <View key={p.id} style={styles.card}>
-        <Text style={styles.title}>{p.title}</Text>
-        {p.content ? <Text style={styles.content}>{p.content}</Text> : null}
-        <View style={styles.row}>
-          {BOARDS.filter((b) => b !== p.board).map((b) => (
-            <TouchableOpacity key={b} style={styles.smallBtn} onPress={() => movePlanAction(p.id, b)}>
-              <Text>移到{' ' + LABELS[b]}</Text>
-            </TouchableOpacity>
-          ))}
-          <TouchableOpacity style={styles.smallBtn} onPress={() => completePlan(p.id, !p.completed)}>
-            <Text>{p.completed ? '取消完成' : '完成'}</Text>
-          </TouchableOpacity>
-        </View>
-        {p.board === 'done' ? (
-          <TextInput placeholderTextColor="rgba(150,150,150,0.45)"
-            style={styles.review}
-            placeholder="写复盘..."
-            defaultValue={p.review ?? ''}
-            onEndEditing={(e) => addReview(p.id, e.nativeEvent.text)}
-          />
-        ) : null}
+        {editing ? (
+          <>
+            <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.editInput} value={editTitle} onChangeText={setEditTitle} placeholder="标题" />
+            <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.editInput} value={editContent} onChangeText={setEditContent} placeholder="内容" />
+            <View style={styles.row}>
+              <TouchableOpacity style={styles.smallBtn} onPress={() => { updatePlan(p.id, { title: editTitle, content: editContent }); setEditingId(null); }}><Text>保存</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.smallBtn} onPress={() => setEditingId(null)}><Text>取消</Text></TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={styles.rowBetween}>
+              <Text style={styles.title}>{p.title}</Text>
+              <TouchableOpacity onPress={() => { setEditingId(p.id); setEditTitle(p.title); setEditContent(p.content ?? ''); }}><Text style={styles.editLink}>编辑</Text></TouchableOpacity>
+            </View>
+            {p.content ? <Text style={styles.content}>{p.content}</Text> : null}
+            <View style={styles.row}>
+              {BOARDS.filter((b) => b !== p.board).map((b) => (
+                <TouchableOpacity key={b} style={styles.smallBtn} onPress={() => movePlanAction(p.id, b)}>
+                  <Text>移到{' ' + LABELS[b]}</Text>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity style={styles.smallBtn} onPress={() => completePlan(p.id, !p.completed)}>
+                <Text>{p.completed ? '取消完成' : '完成'}</Text>
+              </TouchableOpacity>
+            </View>
+            {p.board === 'done' ? (
+              <TextInput placeholderTextColor="rgba(150,150,150,0.45)"
+                style={styles.review}
+                placeholder="写复盘..."
+                defaultValue={p.review ?? ''}
+                onEndEditing={(e) => addReview(p.id, e.nativeEvent.text)}
+              />
+            ) : null}
+          </>
+        )}
       </View>
     );
   }
@@ -105,6 +125,9 @@ const styles = StyleSheet.create({
   board: { flex: 1, backgroundColor: '#fff', borderRadius: 10, padding: 8, minHeight: 200 },
   boardTitle: { fontWeight: '700', marginBottom: 6 },
   card: { backgroundColor: '#fafafa', borderRadius: 8, padding: 8, marginBottom: 8 },
+  editInput: { borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 6, marginBottom: 6 },
+  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  editLink: { color: '#4a90e2' },
   title: { fontWeight: '600' },
   content: { color: '#666', fontSize: 12 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },

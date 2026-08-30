@@ -53,6 +53,7 @@ interface AppState {
   movePlanAction: (id: string, board: Plan['board']) => void;
   completePlan: (id: string, done: boolean) => void;
   addReview: (id: string, review: string) => void;
+  updatePlan: (id: string, patch: Partial<Plan>) => void;
   addNote: (n: Note) => void;
   removeNote: (id: string) => void;
   manualBackup: () => void;
@@ -115,6 +116,7 @@ export const useAppStore = create<AppState>()(
       movePlanAction: (id, board) => set((st) => ({ plans: movePlanFn(st.plans, id, board) })),
       completePlan: (id, done) => set((st) => ({ plans: setCompletedFn(st.plans, id, done) })),
       addReview: (id, review) => set((st) => ({ plans: writeReviewFn(st.plans, id, review) })),
+      updatePlan: (id, patch) => set((st) => ({ plans: st.plans.map((p) => (p.id === id ? { ...p, ...patch } : p)) })),
       addNote: (n) => set((st) => ({ notes: [...st.notes, n] })),
       removeNote: (id) => set((st) => ({ notes: st.notes.filter((x) => x.id !== id) })),
       manualBackup: () => {
