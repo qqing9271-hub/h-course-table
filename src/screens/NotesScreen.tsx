@@ -16,7 +16,7 @@ export default function NotesScreen() {
   const [content, setContent] = useState('');
 
   function add() {
-    addNote({ id: 'n' + Date.now(), date: todayStr(), title: title.trim() || '（无标题）', content });
+    addNote({ id: 'n' + Date.now(), date: todayStr(), title: title.trim(), content });
     setTitle('');
     setContent('');
   }
@@ -41,8 +41,8 @@ export default function NotesScreen() {
         {[...notes].reverse().map((n) => (
           <View key={n.id} style={styles.card}>
             <View style={styles.row}>
-              <Text style={styles.title}>{n.title}</Text>
-              <Text style={styles.date}>{n.date}</Text>
+              <Text style={styles.title}>{n.title || ' '}</Text>
+              <Text style={styles.date}>{n.date || ''}</Text>
             </View>
             <Text style={styles.content}>{n.content}</Text>
             <TouchableOpacity onPress={() => removeNote(n.id)}>

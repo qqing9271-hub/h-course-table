@@ -134,6 +134,11 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         <TouchableOpacity onPress={() => setView('day')} style={[styles.togBtn, view === 'day' && styles.togActive]}><Text>当日</Text></TouchableOpacity>
         <TouchableOpacity onPress={() => setView('week')} style={[styles.togBtn, view === 'week' && styles.togActive]}><Text>一周</Text></TouchableOpacity>
       </View>
+      <View style={styles.weekNav}>
+        <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, -7))}><Text style={styles.nav2}>‹ 上一周</Text></TouchableOpacity>
+        <Text style={styles.weekLabel}>{inSem ? '第 ' + schWeek + ' 周' : weekText}</Text>
+        <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, 7))}><Text style={styles.nav2}>下一周 ›</Text></TouchableOpacity>
+      </View>
 
       <Text style={styles.sectionTitle}>课程表（点击格子可添加/编辑课程）</Text>
       {view === 'day' ? renderDay() : renderWeek()}
@@ -178,6 +183,9 @@ const styles = StyleSheet.create({
   toggle: { flexDirection: 'row', marginBottom: 8 },
   togBtn: { paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8, backgroundColor: '#ddd', marginRight: 8 },
   togActive: { backgroundColor: '#4a90e2' },
+  weekNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  nav2: { color: '#4a90e2', fontSize: 14, paddingHorizontal: 6 },
+  weekLabel: { fontWeight: '700' },
   sectionTitle: { fontSize: 14, fontWeight: '700', color: '#555', marginTop: 8, marginBottom: 6 },
   slot: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 8 },
   slotLabel: { color: '#888', fontSize: 12, marginBottom: 4 },
