@@ -19,12 +19,13 @@ function addDays(d: Date, n: number): Date {
 const BOARDS: Plan['board'][] = ['plan', 'doing', 'done'];
 const LABELS: Record<Plan['board'], string> = { plan: '计划', doing: '进行中', done: '已完成' };
 
-function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan }: {
+function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan, removePlan }: {
   p: Plan;
   movePlanAction: (id: string, board: Plan['board']) => void;
   completePlan: (id: string, d: boolean) => void;
   addReview: (id: string, r: string) => void;
   updatePlan: (id: string, patch: Partial<Plan>) => void;
+  removePlan: (id: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(p.title);
@@ -46,7 +47,10 @@ function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan }: {
         <>
           <View style={styles.rowBetween}>
             <Text style={styles.title}>{p.title}</Text>
-            <TouchableOpacity onPress={() => { setEditing(true); setTitle(p.title); setContent(p.content ?? ''); setTime(p.time ?? ''); }}><Text style={styles.editLink}>编辑</Text></TouchableOpacity>
+            <View style={styles.cardActions}>
+              <TouchableOpacity onPress={() => { setEditing(true); setTitle(p.title); setContent(p.content ?? ''); setTime(p.time ?? ''); }}><Text style={styles.editLink}>编辑</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => removePlan(p.id)}><Text style={styles.delLink}>删除</Text></TouchableOpacity>
+            </View>
           </View>
           {p.content ? <Text style={styles.content}>{p.content}</Text> : null}
           <View style={styles.row}>
@@ -70,7 +74,7 @@ function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan }: {
 }
 
 export default function TodayPlanScreen() {
-  const { plans, addPlan, movePlanAction, completePlan, addReview, updatePlan } = useAppStore();
+  const { plans, addPlan, movePlanAction, completePlan, addReview, updatePlan, removePlan } = useAppStore();
   const [date, setDate] = useState(localDateStr(new Date()));
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -104,7 +108,7 @@ export default function TodayPlanScreen() {
           <View key={b} style={styles.board}>
             <Text style={styles.boardTitle}>{LABELS[b]}</Text>
             {today.filter((p) => p.board === b).map((p) => (
-              <PlanCard key={p.id} p={p} movePlanAction={movePlanAction} completePlan={completePlan} addReview={addReview} updatePlan={updatePlan} />
+              <PlanCard key={p.id} p={p} movePlanAction={movePlanAction} completePlan={completePlan} addReview={addReview} updatePlan={updatePlan} removePlan={removePlan} />
             ))}
           </View>
         ))}
@@ -131,6 +135,8 @@ const styles = StyleSheet.create({
   editInput: { borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 6, marginBottom: 6 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   editLink: { color: '#4a90e2' },
+  cardActions: { flexDirection: 'row', gap: 12 },
+  delLink: { color: '#c00' },
   title: { fontWeight: '600' },
   content: { color: '#666', fontSize: 12 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },

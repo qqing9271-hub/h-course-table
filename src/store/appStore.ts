@@ -54,6 +54,7 @@ interface AppState {
   completePlan: (id: string, done: boolean) => void;
   addReview: (id: string, review: string) => void;
   updatePlan: (id: string, patch: Partial<Plan>) => void;
+  removePlan: (id: string) => void;
   addNote: (n: Note) => void;
   removeNote: (id: string) => void;
   manualBackup: () => void;
@@ -117,6 +118,7 @@ export const useAppStore = create<AppState>()(
       completePlan: (id, done) => set((st) => ({ plans: setCompletedFn(st.plans, id, done) })),
       addReview: (id, review) => set((st) => ({ plans: writeReviewFn(st.plans, id, review) })),
       updatePlan: (id, patch) => set((st) => ({ plans: st.plans.map((p) => (p.id === id ? { ...p, ...patch } : p)) })),
+      removePlan: (id) => set((st) => ({ plans: st.plans.filter((p) => p.id !== id) })),
       addNote: (n) => set((st) => ({ notes: [...st.notes, n] })),
       removeNote: (id) => set((st) => ({ notes: st.notes.filter((x) => x.id !== id) })),
       manualBackup: () => {
