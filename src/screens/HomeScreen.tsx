@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { useAppStore } from '../store/appStore';
 import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
 import { buildDayTimeline, buildWeekGrid } from '../domain/schedule';
+import { coursesForSemester } from '../domain/semesters';
 import TodayPlanScreen from './TodayPlanScreen';
 
 const WEEK_NAMES = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
@@ -18,7 +19,8 @@ function weekdayOne(d: Date): number {
 }
 
 export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
-  const { semester, setting, courses, setSetting } = useAppStore();
+  const { semester, setting, courses: allCourses, setSetting } = useAppStore();
+  const courses = coursesForSemester(allCourses, semester?.id);
   const [view, setView] = useState<'day' | 'week'>('day');
   const today = new Date();
   const dstr = localDateStr(today);

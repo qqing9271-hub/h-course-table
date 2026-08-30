@@ -25,6 +25,7 @@ export interface ScheduleSetting {
 
 export interface Course {
   id: string;
+  semesterId?: string;
   name: string;
   teacher?: string;
   room?: string;

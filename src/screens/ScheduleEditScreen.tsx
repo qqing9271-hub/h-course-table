@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Platform } from 'react-native';
 import { parseScheduleGrid } from '../domain/excelGrid';
+import { coursesForSemester } from '../domain/semesters';
 import { useAppStore } from '../store/appStore';
 import { Course, WeeksRule } from '../types';
 import { serializeSchedule, parseSchedule, mapExcelRows } from '../domain/share';
@@ -16,7 +17,8 @@ import { serializeSchedule, parseSchedule, mapExcelRows } from '../domain/share'
 const WEEK_NAMES = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
 export default function ScheduleEditScreen() {
-  const { courses, setting, setSetting, addCourse, removeCourse, importCourses, replaceCourses, semester, setSemester } = useAppStore();
+  const { courses: allCourses, setting, setSetting, addCourse, removeCourse, importCourses, replaceCourses, replaceCoursesForSemester, semester, setSemester, addSemester } = useAppStore();
+  const courses = coursesForSemester(allCourses, semester?.id);
   const [name, setName] = useState('');
   const [teacher, setTeacher] = useState('');
   const [room, setRoom] = useState('');
@@ -35,6 +37,7 @@ export default function ScheduleEditScreen() {
     const wr: WeeksRule = rule === 'odd' ? { type: 'odd' } : rule === 'even' ? { type: 'even' } : rule === 'custom' ? { type: 'custom', weeks: weeks.split(',').map((x) => parseInt(x.trim(), 10)).filter((n) => !isNaN(n)) } : { type: 'all' };
     const c: Course = {
       id: 'c' + Date.now(),
+      semesterId: semester?.id,
       name,
       teacher: teacher || undefined,
       room: room || undefined,
@@ -82,10 +85,17 @@ export default function ScheduleEditScreen() {
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const grid = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 }) as string[][];
       const { courses: cs, semesterName } = parseScheduleGrid(grid);
-      replaceCourses(cs);
-      if (semesterName && semester) {
+      let targetSemId = semester?.id;
+      if (!targetSemId) {
+        const nd = new Date();
+        const dstr = nd.getFullYear() + '-' + String(nd.getMonth() + 1).padStart(2, '0') + '-' + String(nd.getDate()).padStart(2, '0');
+        const newSem = { id: 's' + Date.now(), name: semesterName || '导入学期', startDate: dstr, totalWeeks: 16 };
+        addSemester(newSem);
+        targetSemId = newSem.id;
+      } else if (semesterName && semester) {
         setSemester({ ...semester, name: semesterName });
       }
+      replaceCoursesForSemester(cs, targetSemId);
       setMsg('✅ Excel 已导入 ' + cs.length + ' 门课' + (semesterName ? '（' + semesterName + '）' : ''));
       Alert.alert('导入成功');
     } catch (e) {

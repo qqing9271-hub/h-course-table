@@ -6,8 +6,9 @@ import { currentWeek } from '../domain/semester';
 
 export default function SettingsScreen() {
   const {
-    semester, setSemester, setting, setSetting,
-    courses, plans, notes, backups, manualBackup, restoreBackup,
+    semester, setSemester, setSetting,
+    semesters, activeSemesterId, addSemester, removeSemesterAction, setActiveSemester,
+    setting, courses, plans, notes, backups, manualBackup, restoreBackup,
   } = useAppStore();
   const [sName, setSName] = useState(semester?.name ?? '');
   const [sStart, setSStart] = useState(semester?.startDate ?? '');
@@ -17,7 +18,7 @@ export default function SettingsScreen() {
 
   function saveSemester() {
     if (!sName.trim() || !sStart.trim()) return;
-    setSemester({ id: 's' + Date.now(), name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 });
+    addSemester({ id: semester?.id ?? 's' + Date.now(), name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 });
     setMsg('✅ 已保存学期：当前第 ' + currentWeek({ id: 's', name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 }, new Date().toISOString().slice(0, 10)) + ' 周');
     Alert.alert('已保存学期');
   }
@@ -50,6 +51,22 @@ export default function SettingsScreen() {
         <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="总周数" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
         <TouchableOpacity style={styles.btn} onPress={saveSemester}><Text style={styles.btnTxt}>保存学期</Text></TouchableOpacity>
         {msg ? <Text style={styles.msg}>{msg}</Text> : null}
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cap}>学期管理（当前：{semester ? semester.name : '无'}）</Text>
+        {semesters.map((s) => (
+          <View key={s.id} style={styles.semRow}>
+            <Text style={styles.lbl}>{s.name}{s.id === activeSemesterId ? '  [当前]' : ''}</Text>
+            <View style={styles.row}>
+              {s.id !== activeSemesterId ? (
+                <TouchableOpacity style={styles.smallBtn} onPress={() => setActiveSemester(s.id)}><Text>设为当前</Text></TouchableOpacity>
+              ) : null}
+              <TouchableOpacity style={styles.smallBtn} onPress={() => removeSemesterAction(s.id)}><Text style={{ color: '#c00' }}>删除</Text></TouchableOpacity>
+            </View>
+          </View>
+        ))}
+        {semesters.length === 0 ? <Text style={styles.lbl}>还没有学期</Text> : null}
       </View>
 
       <View style={styles.card}>
@@ -94,4 +111,6 @@ const styles = StyleSheet.create({
   btn: { backgroundColor: '#4a90e2', borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 6 },
   btnTxt: { color: '#fff', fontWeight: '600' },
   msg: { color: '#2e7d32', marginTop: 8 },
+  semRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 4 },
+  smallBtn: { backgroundColor: '#eee', borderRadius: 6, padding: 4, paddingHorizontal: 8, marginRight: 6 },
 });

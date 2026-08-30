@@ -11,6 +11,7 @@ import {
   writeReview as writeReviewFn,
 } from '../domain/plans';
 import { restoreFromBackup, shouldAutoBackup, pruneBackups, MAX_AUTO_BACKUPS } from '../domain/backup';
+import { upsertSemester, removeSemesterFromList } from '../domain/semesters';
 
 export interface BackupRecord {
   id: string;
@@ -29,6 +30,8 @@ export type BackupDataLike = {
 
 interface AppState {
   semester: Semester | null;
+  semesters: Semester[];
+  activeSemesterId: string | null;
   setting: ScheduleSetting;
   courses: Course[];
   plans: Plan[];
@@ -36,12 +39,16 @@ interface AppState {
   backups: BackupRecord[];
   lastAutoBackupAt?: string;
   setSemester: (s: Semester | null) => void;
+  addSemester: (s: Semester) => void;
+  removeSemesterAction: (id: string) => void;
+  setActiveSemester: (id: string) => void;
   setSetting: (s: ScheduleSetting) => void;
   addCourse: (c: Course) => void;
   updateCourse: (c: Course) => void;
   removeCourse: (id: string) => void;
   importCourses: (cs: Course[]) => void;
   replaceCourses: (cs: Course[]) => void;
+  replaceCoursesForSemester: (cs: Course[], semesterId: string) => void;
   addPlan: (date: string, title: string, content?: string) => void;
   movePlanAction: (id: string, board: Plan['board']) => void;
   completePlan: (id: string, done: boolean) => void;
@@ -58,13 +65,37 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       semester: null,
+      semesters: [],
+      activeSemesterId: null,
       setting: defaultScheduleSetting(),
       courses: [],
       plans: [],
       notes: [],
       backups: [],
       lastAutoBackupAt: undefined,
-      setSemester: (s) => set({ semester: s }),
+      setSemester: (s) =>
+        set((st) => ({
+          semester: s,
+          semesters: s ? upsertSemester(st.semesters, s) : st.semesters,
+          activeSemesterId: s ? s.id : null,
+        })),
+      addSemester: (s) =>
+        set((st) => ({
+          semesters: upsertSemester(st.semesters, s),
+          semester: s,
+          activeSemesterId: s.id,
+        })),
+      removeSemesterAction: (id) =>
+        set((st) => {
+          const semesters = removeSemesterFromList(st.semesters, id);
+          const next = st.activeSemesterId === id ? (semesters[0] ?? null) : st.semester;
+          return { semesters, semester: next, activeSemesterId: next ? next.id : null };
+        }),
+      setActiveSemester: (id) =>
+        set((st) => {
+          const s = st.semesters.find((x) => x.id === id) ?? null;
+          return { semester: s, activeSemesterId: id };
+        }),
       setSetting: (s) => set({ setting: s }),
       addCourse: (c) => set((st) => ({ courses: [...st.courses, c] })),
       updateCourse: (c) =>
@@ -72,6 +103,13 @@ export const useAppStore = create<AppState>()(
       removeCourse: (id) => set((st) => ({ courses: st.courses.filter((x) => x.id !== id) })),
       importCourses: (cs) => set((st) => ({ courses: [...st.courses, ...cs] })),
       replaceCourses: (cs) => set({ courses: cs }),
+      replaceCoursesForSemester: (cs, semesterId) =>
+        set((st) => ({
+          courses: [
+            ...st.courses.filter((c) => c.semesterId && c.semesterId !== semesterId),
+            ...cs.map((c) => ({ ...c, semesterId })),
+          ],
+        })),
       addPlan: (date, title, content) =>
         set((st) => ({ plans: [...st.plans, createPlan(date, title, content)] })),
       movePlanAction: (id, board) => set((st) => ({ plans: movePlanFn(st.plans, id, board) })),
@@ -115,11 +153,14 @@ export const useAppStore = create<AppState>()(
       resetAll: () =>
         set({
           semester: null,
+          semesters: [],
+          activeSemesterId: null,
           setting: defaultScheduleSetting(),
           courses: [],
           plans: [],
           notes: [],
           backups: [],
+          lastAutoBackupAt: undefined,
         }),
     }),
     {
@@ -129,11 +170,21 @@ export const useAppStore = create<AppState>()(
       ),
       merge: (persistedState: unknown, currentState: AppState): AppState => {
         const p = (persistedState ?? {}) as Partial<AppState>;
+        const semesters: Semester[] =
+          p.semesters && p.semesters.length ? p.semesters : p.semester ? [p.semester] : [];
+        const activeId = p.activeSemesterId ?? semesters[0]?.id ?? null;
+        const sem = semesters.find((s) => s.id === activeId) ?? null;
+        const courses: Course[] = (p.courses ?? []).map((c) =>
+          c.semesterId ? c : { ...c, semesterId: activeId ?? undefined },
+        );
         return {
           ...currentState,
           ...p,
+          semesters,
+          activeSemesterId: activeId,
+          semester: sem,
           setting: { ...defaultScheduleSetting(), ...(p.setting ?? {}) },
-          semester: p.semester ?? null,
+          courses,
         };
       },
     },
