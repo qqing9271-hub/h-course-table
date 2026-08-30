@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import { Course, Plan, Note, Semester, ScheduleSetting } from '../types';
 import { defaultScheduleSetting } from '../domain/schedule';
 import {
@@ -121,7 +122,9 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'h-course-table',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() =>
+        Platform.OS === 'web' ? ((globalThis as any).localStorage as any) : AsyncStorage,
+      ),
     },
   ),
 );

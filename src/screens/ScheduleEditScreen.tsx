@@ -23,6 +23,7 @@ export default function ScheduleEditScreen() {
   const [rule, setRule] = useState('all');
   const [weeks, setWeeks] = useState('1,3,5');
   const [importText, setImportText] = useState('');
+  const [msg, setMsg] = useState('');
   const [qrValue, setQrValue] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
@@ -41,6 +42,7 @@ export default function ScheduleEditScreen() {
     };
     addCourse(c);
     setName(''); setTeacher(''); setRoom('');
+    setMsg('✅ 已添加课程：' + c.name);
   }
 
   function exportJson() {
@@ -52,7 +54,8 @@ export default function ScheduleEditScreen() {
       const parsed = parseSchedule(importText);
       importCourses(parsed.courses);
       setImportText('');
-      Alert.alert('导入成功', '已导入 ' + parsed.courses.length + ' 门课');
+      setMsg('✅ 已导入 ' + parsed.courses.length + ' 门课');
+      Alert.alert('导入成功');
     } catch (e) {
       Alert.alert('导入失败', String(e));
     }
@@ -71,7 +74,8 @@ export default function ScheduleEditScreen() {
       const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet);
       const cs = mapExcelRows(rows);
       importCourses(cs);
-      Alert.alert('导入成功', '已导入 ' + cs.length + ' 门课');
+      setMsg('✅ Excel 已导入 ' + cs.length + ' 门课');
+      Alert.alert('导入成功');
     } catch (e) {
       Alert.alert('导入失败', String(e));
     }
@@ -94,7 +98,8 @@ export default function ScheduleEditScreen() {
     try {
       const parsed = parseSchedule(data);
       importCourses(parsed.courses);
-      Alert.alert('扫码导入成功', '已导入 ' + parsed.courses.length + ' 门课');
+      setMsg('✅ 扫码导入 ' + parsed.courses.length + ' 门课');
+      Alert.alert('扫码导入成功');
     } catch (e) {
       Alert.alert('扫码内容不是有效课表', String(e));
     }
@@ -107,6 +112,7 @@ export default function ScheduleEditScreen() {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.head}>课表编辑</Text>
+      {msg ? <Text style={styles.msg}>{msg}</Text> : null}
 
       <View style={styles.card}>
         <Text style={styles.cap}>新增课程</Text>
@@ -226,6 +232,7 @@ const styles = StyleSheet.create({
   courseTxt: { flex: 1 },
   del: { color: '#c00' },
   empty: { color: '#aaa' },
+  msg: { color: '#2e7d32', marginBottom: 8 },
   qrModal: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   qrBox: { backgroundColor: '#fff', padding: 20, borderRadius: 12, alignItems: 'center' },
   qrTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },

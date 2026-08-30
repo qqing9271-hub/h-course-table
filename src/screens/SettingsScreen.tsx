@@ -13,11 +13,13 @@ export default function SettingsScreen() {
   const [sStart, setSStart] = useState(semester?.startDate ?? '');
   const [sWeeks, setSWeeks] = useState(String(semester?.totalWeeks ?? 1));
   const [restoreText, setRestoreText] = useState('');
+  const [msg, setMsg] = useState('');
 
   function saveSemester() {
     if (!sName.trim() || !sStart.trim()) return;
     setSemester({ id: 's' + Date.now(), name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 });
-    Alert.alert('已保存学期', '开学日期 ' + sStart + ' 当前第 ' + currentWeek({ id: 's', name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 }, new Date().toISOString().slice(0, 10)) + ' 周');
+    setMsg('✅ 已保存学期：当前第 ' + currentWeek({ id: 's', name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 }, new Date().toISOString().slice(0, 10)) + ' 周');
+    Alert.alert('已保存学期');
   }
 
   function doBackup() {
@@ -47,6 +49,7 @@ export default function SettingsScreen() {
         <TextInput style={styles.input} placeholder="开学日期 yyyy-mm-dd" value={sStart} onChangeText={setSStart} />
         <TextInput style={styles.input} placeholder="总周数" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
         <TouchableOpacity style={styles.btn} onPress={saveSemester}><Text style={styles.btnTxt}>保存学期</Text></TouchableOpacity>
+        {msg ? <Text style={styles.msg}>{msg}</Text> : null}
       </View>
 
       <View style={styles.card}>
@@ -90,4 +93,5 @@ const styles = StyleSheet.create({
   nav: { fontSize: 24, paddingHorizontal: 10, color: '#4a90e2' },
   btn: { backgroundColor: '#4a90e2', borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 6 },
   btnTxt: { color: '#fff', fontWeight: '600' },
+  msg: { color: '#2e7d32', marginTop: 8 },
 });

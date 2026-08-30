@@ -1,18 +1,18 @@
-import { Course, ScheduleSetting, WeeksRule } from '../types';
+import { Course, ScheduleSetting, WeeksRule, PeriodTime } from '../types';
+import { DEFAULT_PERIODS_PER_DAY, DEFAULT_PERIOD_TIMES } from '../constants';
 
-export const DEFAULT_PERIODS_PER_DAY = 8;
+export const DEFAULT_PERIODS_PER_DAY_SCHEDULE = DEFAULT_PERIODS_PER_DAY;
 export const DEFAULT_BIG_PERIOD_SIZE = 2;
 
 export function defaultScheduleSetting(): ScheduleSetting {
   return {
     periodsPerDay: DEFAULT_PERIODS_PER_DAY,
     bigPeriodSize: DEFAULT_BIG_PERIOD_SIZE,
-    periodTimes: [],
+    periodTimes: DEFAULT_PERIOD_TIMES,
     showWeekend: true,
   };
 }
 
-// 把一天的小节按“两小节=一大节”分组
 export function bigPeriodGroups(
   periodsPerDay: number,
   bigPeriodSize: number,
@@ -60,4 +60,32 @@ export function buildDayTimeline(
     bigIndex: g.bigIndex,
     courses: dayCourses.filter((c) => c.bigPeriod === g.bigIndex),
   }));
+}
+
+export interface WeekGridRow {
+  bigPeriod: number;
+  start?: string;
+  end?: string;
+  cells: { day: number; courses: Course[] }[];
+}
+
+export function buildWeekGrid(
+  courses: Course[],
+  week: number,
+  setting: ScheduleSetting,
+  days: number[],
+): WeekGridRow[] {
+  const groups = bigPeriodGroups(setting.periodsPerDay, setting.bigPeriodSize);
+  return groups.map((g) => {
+    const pt = setting.periodTimes[g.bigIndex - 1];
+    return {
+      bigPeriod: g.bigIndex,
+      start: pt?.start,
+      end: pt?.end,
+      cells: days.map((day) => ({
+        day,
+        courses: coursesOnDay(courses, day, week).filter((c) => c.bigPeriod === g.bigIndex),
+      })),
+    };
+  });
 }
