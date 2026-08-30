@@ -125,6 +125,15 @@ export const useAppStore = create<AppState>()(
       storage: createJSONStorage(() =>
         Platform.OS === 'web' ? ((globalThis as any).localStorage as any) : AsyncStorage,
       ),
+      merge: (persistedState: unknown, currentState: AppState): AppState => {
+        const p = (persistedState ?? {}) as Partial<AppState>;
+        return {
+          ...currentState,
+          ...p,
+          setting: { ...defaultScheduleSetting(), ...(p.setting ?? {}) },
+          semester: p.semester ?? null,
+        };
+      },
     },
   ),
 );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useAppStore } from '../store/appStore';
-import { currentWeek, isBeforeSemester } from '../domain/semester';
+import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
 import { buildDayTimeline, buildWeekGrid } from '../domain/schedule';
 
 const WEEK_NAMES = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
@@ -21,14 +21,34 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
   const [view, setView] = useState<'day' | 'week'>('day');
   const today = new Date();
   const dstr = localDateStr(today);
-  const wd = weekdayOne(today);
-  const week = semester ? currentWeek(semester, dstr) : 0;
+
+  const rawWeek = semester ? currentWeek(semester, dstr) : 0;
+  const validWeek = Number.isFinite(rawWeek) ? rawWeek : 0;
   const before = semester ? isBeforeSemester(semester, dstr) : false;
+  const after = semester ? isAfterSemester(semester, dstr) : false;
+  const inSemester = !!semester && validWeek >= 1 && !before && !after;
+
+  // 未开学 -> 显示开学第一天；开学中 -> 显示今天
+  let displayDate = today;
+  if (semester && !inSemester) {
+    const sd = parseDate(semester.startDate);
+    if (!isNaN(sd.getTime())) displayDate = sd;
+  }
+  const displayDstr = localDateStr(displayDate);
+  const displayWd = weekdayOne(displayDate);
+  const displayWeek = inSemester ? validWeek : 1;
+
+  let weekText = '未设置学期';
+  if (semester) {
+    if (inSemester) weekText = '第 ' + validWeek + ' 周';
+    else if (before) weekText = '未开学';
+    else if (after) weekText = '已结束';
+  }
+
   const dayCount = setting.showWeekend ? 7 : 5;
   const days = Array.from({ length: dayCount }, (_, i) => i + 1);
-
-  const dayTimeline = buildDayTimeline(courses, wd, week, setting.periodsPerDay, setting.bigPeriodSize);
-  const weekGrid = buildWeekGrid(courses, week, setting, days);
+  const dayTimeline = buildDayTimeline(courses, displayWd, displayWeek, setting.periodsPerDay, setting.bigPeriodSize);
+  const weekGrid = buildWeekGrid(courses, displayWeek, setting, days);
 
   function renderDay() {
     return (
@@ -38,7 +58,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
           return (
             <View key={slot.bigIndex} style={styles.slot}>
               <Text style={styles.slotLabel}>
-                {'第 ' + slot.bigIndex + ' 大节' + (pt ? '  ' + pt.start + '-' + pt.end : '')}
+                {'第 ' + slot.bigIndex + ' 大节' + (pt && pt.start ? '  ' + pt.start + '-' + pt.end : '')}
               </Text>
               {slot.courses.length === 0 ? (
                 <Text style={styles.empty}>（无课）</Text>
@@ -46,9 +66,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
                 slot.courses.map((c) => (
                   <View key={c.id} style={styles.course}>
                     <Text style={styles.courseName}>{c.name}</Text>
-                    <Text style={styles.courseMeta}>
-                      {c.teacher ? c.teacher : ''}{c.room ? ' ' + c.room : ''}
-                    </Text>
+                    <Text style={styles.courseMeta}>{c.teacher ? c.teacher : ''}{c.room ? ' ' + c.room : ''}</Text>
                   </View>
                 ))
               )}
@@ -74,7 +92,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
           <View key={row.bigPeriod} style={styles.gridRow}>
             <View style={styles.timeCol}>
               <Text style={styles.timeTxt}>{String(row.bigPeriod)}</Text>
-              <Text style={styles.timeSmall}>{row.start + '-' + row.end}</Text>
+              <Text style={styles.timeSmall}>{row.start ? row.start + '-' + row.end : ''}</Text>
             </View>
             {row.cells.map((cell) => (
               <View key={cell.day} style={styles.gridCell}>
@@ -96,10 +114,8 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.date}>{dstr}</Text>
-          <Text style={styles.sub}>
-            {semester ? semester.name + ' · 第 ' + week + ' 周' : '未设置学期'}
-          </Text>
+          <Text style={styles.date}>{displayDstr}</Text>
+          <Text style={styles.sub}>{semester ? semester.name + ' · ' + weekText : '未设置学期'}</Text>
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity
@@ -114,6 +130,10 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         </View>
       </View>
 
+      {before || after ? (
+        <Text style={styles.warn}>{before ? '未开学，已显示开学第一天' : '学期已结束'}</Text>
+      ) : null}
+
       <View style={styles.toggle}>
         <TouchableOpacity onPress={() => setView('day')} style={[styles.togBtn, view === 'day' && styles.togActive]}>
           <Text>当日</Text>
@@ -123,7 +143,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         </TouchableOpacity>
       </View>
 
-      {before ? <Text style={styles.warn}>还没开学</Text> : view === 'day' ? renderDay() : renderWeek()}
+      {view === 'day' ? renderDay() : renderWeek()}
 
       <TouchableOpacity style={styles.planBtn} onPress={() => goTo('plan')}>
         <Text style={styles.planTxt}>今日计划</Text>
@@ -134,7 +154,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: '#f5f5f5' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
   headerLeft: { flex: 1 },
   headerRight: { alignItems: 'flex-end' },
   date: { fontSize: 24, fontWeight: '700' },
