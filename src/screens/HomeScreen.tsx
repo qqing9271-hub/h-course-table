@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
 import { useAppStore } from '../store/appStore';
 import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
 import { buildDayTimeline, buildWeekGrid, bigPeriodRange } from '../domain/schedule';
@@ -23,14 +23,14 @@ function weekdayOneStr(s: string): number {
 }
 
 export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
-  const { semester, setting, courses: allCourses, setSetting, addCourse, updateCourse } = useAppStore();
+  const { semester, setting, courses: allCourses, setSetting, addCourse, updateCourse, semesters, setActiveSemester } = useAppStore();
   const courses = coursesForSemester(allCourses, semester?.id);
   const [view, setView] = useState<'day' | 'week'>('day');
   const todayStr = localDateStr(new Date());
   const [schDate, setSchDate] = useState(todayStr);
   const [editCell, setEditCell] = useState<{ weekday: number; bigPeriod: number; course?: Course } | null>(null);
+  const [showSemModal, setShowSemModal] = useState(false);
 
-  const beforeToday = semester ? isBeforeSemester(semester, todayStr) : false;
   const rawW = semester ? currentWeek(semester, schDate) : 0;
   const schWeek = Number.isFinite(rawW) ? rawW : 0;
   const schWd = weekdayOneStr(schDate);
@@ -125,18 +125,6 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         </View>
       </View>
 
-      {beforeToday || (semester && schBefore) ? (
-        <View style={styles.warnRow}>
-          <Text style={styles.warn}>现在还未开学</Text>
-          {semester ? (
-            <TouchableOpacity style={styles.jumpBtn} onPress={() => setSchDate(semester.startDate)}>
-              <Text style={styles.jumpTxt}>跳到开学第一天</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      ) : null}
-      {schAfter ? <Text style={styles.warn}>学期已结束</Text> : null}
-
       <View style={styles.toggle}>
         <TouchableOpacity onPress={() => setView('day')} style={[styles.togBtn, view === 'day' && styles.togActive]}><Text>当日</Text></TouchableOpacity>
         <TouchableOpacity onPress={() => setView('week')} style={[styles.togBtn, view === 'week' && styles.togActive]}><Text>一周</Text></TouchableOpacity>
@@ -147,32 +135,63 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, 7))}><Text style={styles.nav2}>下一周 ›</Text></TouchableOpacity>
       </View>
 
-      {canShowSchedule ? (
+      {!semester ? (
+        <View style={styles.noticeCard}>
+          <Text style={styles.noticeTxt}>请选择/新建学期课程表</Text>
+          <View style={styles.noticeRow}>
+            {semesters.length > 0 ? (
+              <TouchableOpacity style={styles.jumpBtn} onPress={() => setShowSemModal(true)}><Text style={styles.jumpTxt}>选择已有学期 ›</Text></TouchableOpacity>
+            ) : null}
+            <TouchableOpacity style={styles.jumpBtn} onPress={() => goTo('settings')}><Text style={styles.jumpTxt}>新建学期 ›</Text></TouchableOpacity>
+          </View>
+        </View>
+      ) : !canShowSchedule ? (
+        <View style={styles.noticeCard}>
+          {schBefore ? (
+            <>
+              <Text style={styles.noticeTxt}>{semester.name} · 现在还未开学</Text>
+              <View style={styles.noticeRow}>
+                <TouchableOpacity style={styles.jumpBtn} onPress={() => setSchDate(semester.startDate)}><Text style={styles.jumpTxt}>跳到第一周</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.jumpBtn} onPress={() => setSchDate(semester.startDate)}><Text style={styles.jumpTxt}>跳到第一天</Text></TouchableOpacity>
+              </View>
+            </>
+          ) : schAfter ? (
+            <Text style={styles.noticeTxt}>{semester.name} · 学期已结束</Text>
+          ) : (
+            <>
+              <Text style={styles.noticeTxt}>开学时间/周数有误，请到设置修正</Text>
+              <TouchableOpacity style={styles.jumpBtn} onPress={() => goTo('settings')}><Text style={styles.jumpTxt}>去设置 ›</Text></TouchableOpacity>
+            </>
+          )}
+        </View>
+      ) : (
         <>
           <Text style={styles.sectionTitle}>课程表（点击格子可添加/编辑课程）</Text>
           {view === 'day' ? renderDay() : renderWeek()}
+          {schDate !== todayStr ? (
+            <TouchableOpacity style={styles.jumpBtn} onPress={() => setSchDate(todayStr)}><Text style={styles.jumpTxt}>回到今天</Text></TouchableOpacity>
+          ) : null}
           <Text style={styles.sectionTitle}>编辑课表：点格子选择时间段添加课程；节数/时间/导入导出在「课表」页</Text>
         </>
-      ) : (
-        <View style={styles.noticeCard}>
-          {!semester || weekText === '未设置学期' ? (
-            <>
-              <Text style={styles.noticeTxt}>还没有可用的学期，请先设置 学期名 / 开学时间 / 总周数</Text>
-              <TouchableOpacity style={styles.jumpBtn} onPress={() => goTo('settings')}><Text style={styles.jumpTxt}>去设置学期 ›</Text></TouchableOpacity>
-            </>
-          ) : schBefore ? (
-            <>
-              <Text style={styles.noticeTxt}>现在还未开学，暂不显示课程表</Text>
-              <TouchableOpacity style={styles.jumpBtn} onPress={() => setSchDate(semester!.startDate)}><Text style={styles.jumpTxt}>跳到开学第一天</Text></TouchableOpacity>
-            </>
-          ) : (
-            <Text style={styles.noticeTxt}>学期已结束，暂不显示课程表</Text>
-          )}
-        </View>
       )}
 
       <TodayPlanScreen />
 
+      <Modal visible={showSemModal} transparent animationType="slide" onRequestClose={() => setShowSemModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 28 }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 16 }}>
+            <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 10 }}>选择要在首页显示的学期</Text>
+            {semesters.map((s) => (
+              <TouchableOpacity key={s.id} style={{ paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee' }} onPress={() => { setActiveSemester(s.id); setShowSemModal(false); setSchDate(todayStr); }}>
+                <Text>{s.name}{semester && semester.id === s.id ? '  [当前]' : ''}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={{ marginTop: 12, backgroundColor: '#ddd', borderRadius: 8, padding: 10, alignItems: 'center' }} onPress={() => setShowSemModal(false)}>
+              <Text>取消</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       {editCell ? (
         <CourseEditModal
           visible={!!editCell}
@@ -216,6 +235,7 @@ const styles = StyleSheet.create({
   weekLabel: { fontWeight: '700' },
   noticeCard: { backgroundColor: '#fff', borderRadius: 10, padding: 16, marginBottom: 8, alignItems: 'center' },
   noticeTxt: { fontSize: 14, color: '#666', marginBottom: 8, textAlign: 'center' },
+  noticeRow: { flexDirection: 'row', gap: 10, flexWrap: 'wrap', justifyContent: 'center' },
   sectionTitle: { fontSize: 14, fontWeight: '700', color: '#555', marginTop: 8, marginBottom: 6 },
   slot: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 8 },
   slotLabel: { color: '#888', fontSize: 12, marginBottom: 4 },
