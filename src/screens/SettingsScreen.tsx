@@ -8,6 +8,7 @@ import * as FileSystem from 'expo-file-system';
 import * as XLSX from 'xlsx';
 import { Platform } from 'react-native';
 import { parseScheduleGrid } from '../domain/excelGrid';
+import CalendarModal from '../components/CalendarModal';
 
 export default function SettingsScreen() {
   const {
@@ -21,6 +22,7 @@ export default function SettingsScreen() {
   const [sWeeks, setSWeeks] = useState(String(semester?.totalWeeks ?? 1));
   const [restoreText, setRestoreText] = useState('');
   const [msg, setMsg] = useState('');
+  const [showCal, setShowCal] = useState(false);
 
   function saveSemester() {
     if (!sName.trim() || !sStart.trim()) return;
@@ -81,8 +83,10 @@ export default function SettingsScreen() {
         <Text style={styles.cap}>学期</Text>
         <Text style={styles.fieldLabel}>学期名</Text>
         <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="如 2026 秋" value={sName} onChangeText={setSName} />
-        <Text style={styles.fieldLabel}>开学时间</Text>
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="yyyy-mm-dd" value={sStart} onChangeText={setSStart} />
+        <Text style={styles.fieldLabel}>开学时间（点下面选择日期）</Text>
+        <TouchableOpacity style={styles.dateBtn} onPress={() => setShowCal(true)}>
+          <Text style={styles.dateBtnTxt}>{sStart || '选择开学日期'}</Text>
+        </TouchableOpacity>
         <Text style={styles.fieldLabel}>总周数</Text>
         <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="如 16" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
         <TouchableOpacity style={styles.btn} onPress={saveSemester}><Text style={styles.btnTxt}>保存学期</Text></TouchableOpacity>
@@ -132,6 +136,7 @@ export default function SettingsScreen() {
         <Text style={styles.lbl}>H课程表 v1.0.0</Text>
         <Text style={styles.lbl}>本地存储，无需账号；可在 GitHub 查看源码并发布分享。</Text>
       </View>
+      <CalendarModal visible={showCal} value={sStart} onSelect={(d) => { setSStart(d); setShowCal(false); }} onClose={() => setShowCal(false)} />
     </ScrollView>
   );
 }
@@ -142,6 +147,8 @@ const styles = StyleSheet.create({
   card: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 10 },
   cap: { fontWeight: '700', marginBottom: 6 },
   fieldLabel: { fontSize: 12, color: '#666', marginTop: 6, marginBottom: 2 },
+  dateBtn: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 10, marginBottom: 6 },
+  dateBtnTxt: { color: '#333' },
   input: { borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 6, marginBottom: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 6 },
   lbl: { fontSize: 14, marginBottom: 6 },

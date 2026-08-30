@@ -171,9 +171,15 @@ export const useAppStore = create<AppState>()(
         Platform.OS === 'web' ? ((globalThis as any).localStorage as any) : AsyncStorage,
       ),
       merge: (persistedState: unknown, currentState: AppState): AppState => {
+        const normDate = (s?: string) => {
+          if (!s) return '';
+          if (/^\d{8}$/.test(s)) return s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8);
+          return s;
+        };
+        const normSem = (x: Semester): Semester => ({ ...x, startDate: normDate(x.startDate) });
         const p = (persistedState ?? {}) as Partial<AppState>;
         const semesters: Semester[] =
-          p.semesters && p.semesters.length ? p.semesters : p.semester ? [p.semester] : [];
+          (p.semesters && p.semesters.length ? p.semesters : p.semester ? [p.semester] : []).map(normSem);
         const activeId = p.activeSemesterId ?? semesters[0]?.id ?? null;
         const sem = semesters.find((s) => s.id === activeId) ?? null;
         const uni = <T extends { id: string }>(arr: T[], prefix: string): T[] => {
