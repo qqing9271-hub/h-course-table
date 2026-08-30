@@ -43,6 +43,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
     else if (schBefore) weekText = '未开学';
     else if (schAfter) weekText = '已结束';
   }
+  const canShowSchedule = inSem;
   const displayWeek = schWeek >= 1 ? schWeek : 1;
   const dayCount = setting.showWeekend ? 7 : 5;
   const days = Array.from({ length: dayCount }, (_, i) => i + 1);
@@ -146,10 +147,29 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, 7))}><Text style={styles.nav2}>下一周 ›</Text></TouchableOpacity>
       </View>
 
-      <Text style={styles.sectionTitle}>课程表（点击格子可添加/编辑课程）</Text>
-      {view === 'day' ? renderDay() : renderWeek()}
-
-      <Text style={styles.sectionTitle}>编辑课表：点格子选择时间段添加课程；节数/时间/导入导出在「课表」页</Text>
+      {canShowSchedule ? (
+        <>
+          <Text style={styles.sectionTitle}>课程表（点击格子可添加/编辑课程）</Text>
+          {view === 'day' ? renderDay() : renderWeek()}
+          <Text style={styles.sectionTitle}>编辑课表：点格子选择时间段添加课程；节数/时间/导入导出在「课表」页</Text>
+        </>
+      ) : (
+        <View style={styles.noticeCard}>
+          {!semester || weekText === '未设置学期' ? (
+            <>
+              <Text style={styles.noticeTxt}>还没有可用的学期，请先设置 学期名 / 开学时间 / 总周数</Text>
+              <TouchableOpacity style={styles.jumpBtn} onPress={() => goTo('settings')}><Text style={styles.jumpTxt}>去设置学期 ›</Text></TouchableOpacity>
+            </>
+          ) : schBefore ? (
+            <>
+              <Text style={styles.noticeTxt}>现在还未开学，暂不显示课程表</Text>
+              <TouchableOpacity style={styles.jumpBtn} onPress={() => setSchDate(semester!.startDate)}><Text style={styles.jumpTxt}>跳到开学第一天</Text></TouchableOpacity>
+            </>
+          ) : (
+            <Text style={styles.noticeTxt}>学期已结束，暂不显示课程表</Text>
+          )}
+        </View>
+      )}
 
       <TodayPlanScreen />
 
@@ -194,6 +214,8 @@ const styles = StyleSheet.create({
   weekNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   nav2: { color: '#4a90e2', fontSize: 14, paddingHorizontal: 6 },
   weekLabel: { fontWeight: '700' },
+  noticeCard: { backgroundColor: '#fff', borderRadius: 10, padding: 16, marginBottom: 8, alignItems: 'center' },
+  noticeTxt: { fontSize: 14, color: '#666', marginBottom: 8, textAlign: 'center' },
   sectionTitle: { fontSize: 14, fontWeight: '700', color: '#555', marginTop: 8, marginBottom: 6 },
   slot: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 8 },
   slotLabel: { color: '#888', fontSize: 12, marginBottom: 4 },
