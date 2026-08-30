@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, PanResponder } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useAppStore } from '../store/appStore';
 import { getPlansByDate } from '../domain/plans';
 import { Plan } from '../types';
@@ -30,28 +30,8 @@ function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan }: {
   const [title, setTitle] = useState(p.title);
   const [content, setContent] = useState(p.content ?? '');
   const [time, setTime] = useState(p.time ?? '');
-  const [dx, setDx] = useState(0);
-  const latest = useRef({ p, movePlanAction });
-  latest.current = { p, movePlanAction };
-
-  const pan = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 5 && Math.abs(g.dx) > Math.abs(g.dy),
-      onPanResponderMove: (_, g) => setDx(g.dx),
-      onPanResponderRelease: (_, g) => {
-        const pp = latest.current.p;
-        const i = BOARDS.indexOf(pp.board);
-        if (g.dx < -40 && i > 0) latest.current.movePlanAction(pp.id, BOARDS[i - 1]);
-        else if (g.dx > 40 && i < 2) latest.current.movePlanAction(pp.id, BOARDS[i + 1]);
-        setDx(0);
-      },
-      onPanResponderTerminate: () => setDx(0),
-    }),
-  ).current;
-
   return (
-    <View style={[styles.card, { transform: [{ translateX: dx }] }]}>
+    <View style={styles.card}>
       {editing ? (
         <>
           <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.editInput} value={title} onChangeText={setTitle} placeholder="标题" />
@@ -65,7 +45,6 @@ function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan }: {
       ) : (
         <>
           <View style={styles.rowBetween}>
-            <View style={styles.dragHandle} {...pan.panHandlers}><Text style={styles.dragTxt}>≡</Text></View>
             <Text style={styles.title}>{p.title}</Text>
             <TouchableOpacity onPress={() => { setEditing(true); setTitle(p.title); setContent(p.content ?? ''); setTime(p.time ?? ''); }}><Text style={styles.editLink}>编辑</Text></TouchableOpacity>
           </View>
@@ -151,8 +130,6 @@ const styles = StyleSheet.create({
   card: { backgroundColor: '#fafafa', borderRadius: 8, padding: 8, marginBottom: 8 },
   editInput: { borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 6, marginBottom: 6 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  dragHandle: { width: 26, height: 26, borderRadius: 6, backgroundColor: '#eef2f7', alignItems: 'center', justifyContent: 'center' },
-  dragTxt: { color: '#4a90e2', fontSize: 16 },
   editLink: { color: '#4a90e2' },
   title: { fontWeight: '600' },
   content: { color: '#666', fontSize: 12 },
