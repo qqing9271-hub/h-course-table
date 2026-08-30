@@ -60,6 +60,13 @@ export function bigPeriodRange(
   return { start: first.start, end: last.end };
 }
 
+export function bigPeriodLabel(setting: ScheduleSetting, bigIndex: number): string {
+  const g = bigPeriodGroups(setting.periodsPerDay, setting.bigPeriodSize).find((x) => x.bigIndex === bigIndex);
+  if (!g) return '';
+  if (setting.bigPeriodSize > 1) return g.smalls[0] + '-' + g.smalls[g.smalls.length - 1] + ' 节';
+  return g.smalls[0] + ' 节';
+}
+
 export function buildDayTimeline(
   courses: Course[],
   weekday: number,

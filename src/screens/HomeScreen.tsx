@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
 import { useAppStore } from '../store/appStore';
 import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
-import { buildDayTimeline, buildWeekGrid, bigPeriodRange } from '../domain/schedule';
+import { buildDayTimeline, buildWeekGrid, bigPeriodRange, bigPeriodLabel } from '../domain/schedule';
 import { coursesForSemester } from '../domain/semesters';
 import CourseEditModal from '../components/CourseEditModal';
 import TodayPlanScreen from './TodayPlanScreen';
@@ -57,7 +57,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
           const pt = bigPeriodRange(setting, slot.bigIndex);
           return (
             <TouchableOpacity key={slot.bigIndex} style={styles.slot} onPress={() => setEditCell({ weekday: schWd, bigPeriod: slot.bigIndex, course: slot.courses[0] })}>
-              <Text style={styles.slotLabel}>{'第 ' + slot.bigIndex + ' 大节' + (pt && pt.start ? '  ' + pt.start + '-' + pt.end : '')}</Text>
+              <Text style={styles.slotLabel}>{bigPeriodLabel(setting, slot.bigIndex) + (pt && pt.start ? '  ' + pt.start + '-' + pt.end : '')}</Text>
               {slot.courses.length === 0 ? <Text style={styles.empty}>（无课，点击添加）</Text> : slot.courses.map((c) => (
                 <View key={c.id} style={styles.course}>
                   <Text style={styles.courseName}>{c.name}</Text>
@@ -81,7 +81,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         {weekGrid.map((row) => (
           <View key={row.bigPeriod} style={styles.gridRow}>
             <View style={styles.timeCol}>
-              <Text style={styles.timeTxt}>{String(row.bigPeriod)}</Text>
+              <Text style={styles.timeTxt}>{bigPeriodLabel(setting, row.bigPeriod)}</Text>
               <Text style={styles.timeSmall}>{row.start ? row.start + '-' + row.end : ''}</Text>
             </View>
             {row.cells.map((cell) => (
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   gridHeadTxt: { fontWeight: '700', fontSize: 13 },
   gridRow: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 8, marginTop: 4, padding: 4, minHeight: 64 },
   timeCol: { width: 70, justifyContent: 'center', alignItems: 'center', paddingRight: 4 },
-  timeTxt: { fontWeight: '700', fontSize: 14 },
+  timeTxt: { fontWeight: '700', fontSize: 12 },
   timeSmall: { fontSize: 10, color: '#888', textAlign: 'center' },
   gridCell: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 2 },
 });

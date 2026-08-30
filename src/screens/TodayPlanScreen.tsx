@@ -56,11 +56,11 @@ function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan, remo
           <View style={styles.row}>
             {BOARDS.filter((b) => b !== p.board).map((b) => (
               <TouchableOpacity key={b} style={styles.smallBtn} onPress={() => movePlanAction(p.id, b)}>
-                <Text>移到{' ' + LABELS[b]}</Text>
+                <Text style={styles.link}>移到{' ' + LABELS[b]}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity style={styles.smallBtn} onPress={() => completePlan(p.id, !p.completed)}>
-              <Text>{p.completed ? '取消完成' : '完成'}</Text>
+              <Text style={styles.link}>{p.completed ? '取消完成' : '完成'}</Text>
             </TouchableOpacity>
           </View>
           {p.board === 'done' ? (
@@ -134,13 +134,14 @@ const styles = StyleSheet.create({
   card: { backgroundColor: '#fafafa', borderRadius: 8, padding: 8, marginBottom: 8 },
   editInput: { borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 6, marginBottom: 6 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  editLink: { color: '#4a90e2' },
+  editLink: { color: '#4a90e2', fontSize: 12 },
   cardActions: { flexDirection: 'row', gap: 12 },
-  delLink: { color: '#c00' },
+  delLink: { color: '#c00', fontSize: 12 },
   title: { fontWeight: '600' },
   content: { color: '#666', fontSize: 12 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
-  smallBtn: { backgroundColor: '#eee', borderRadius: 6, padding: 4, paddingHorizontal: 6 },
+  smallBtn: { paddingHorizontal: 4, paddingVertical: 2 },
+  link: { color: '#4a90e2', fontSize: 12 },
   review: { marginTop: 6, borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 6 },
   cardDate: { fontSize: 10, color: '#aaa', marginTop: 6, textAlign: 'left' },
 });

@@ -6,6 +6,7 @@ import {
   coursesOnDay,
   buildDayTimeline,
   buildWeekGrid,
+  bigPeriodLabel,
 } from '../src/domain/schedule';
 import { DEFAULT_PERIOD_TIMES } from '../src/constants';
 
@@ -77,4 +78,11 @@ test('首页周网格: 行为节次、列为星期，含每大节时间', () => 
   expect(grid[0].end).toBe('09:35');
   expect(grid[0].cells.find((c) => c.day === 1)?.courses.map((x) => x.name)).toEqual(['高数']);
   expect(grid[1].cells.find((c) => c.day === 7)?.courses.map((x) => x.name)).toEqual(['英语']);
+});
+test('大节标签: 合并两节显示 1-2 节, 关闭显示 1 节', () => {
+  const s = defaultScheduleSetting();
+  expect(bigPeriodLabel(s, 1)).toBe('1-2 节');
+  expect(bigPeriodLabel(s, 5)).toBe('9-10 节');
+  const s2 = { ...s, bigPeriodSize: 1 };
+  expect(bigPeriodLabel(s2, 1)).toBe('1 节');
 });

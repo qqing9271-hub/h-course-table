@@ -11,7 +11,7 @@ import { Platform } from 'react-native';
 import { useAppStore } from '../store/appStore';
 import { parseScheduleGrid } from '../domain/excelGrid';
 import { serializeSchedule, parseSchedule } from '../domain/share';
-import { bigPeriodGroups } from '../domain/schedule';
+import { bigPeriodGroups, bigPeriodLabel } from '../domain/schedule';
 import { DEFAULT_PERIOD_TIMES } from '../constants';
 import { Course } from '../types';
 
@@ -125,7 +125,7 @@ export default function ScheduleEditScreen() {
           <TouchableOpacity onPress={() => setSetting({ ...setting, periodsPerDay: setting.periodsPerDay + 2 })}><Text style={styles.nav}>+</Text></TouchableOpacity>
         </View>
         <View style={styles.row}>
-          <Text style={styles.lbl}>两小节=一大节（{setting.bigPeriodSize}）</Text>
+          <Text style={styles.lbl}>合并两节（{setting.bigPeriodSize}）</Text>
           <TouchableOpacity onPress={() => setSetting({ ...setting, bigPeriodSize: setting.bigPeriodSize === 2 ? 1 : 2 })}><Text>{setting.bigPeriodSize === 2 ? '开' : '关'}</Text></TouchableOpacity>
         </View>
         <View style={styles.row}>
@@ -139,7 +139,7 @@ export default function ScheduleEditScreen() {
         {groups.map((g) => (
           <View key={g.bigIndex} style={{ marginBottom: 8 }}>
             {setting.bigPeriodSize > 1 ? (
-              <Text style={styles.lbl}>第 {g.bigIndex} 大节（小节 {g.smalls.join('、')}）</Text>
+              <Text style={styles.lbl}>{bigPeriodLabel(setting, g.bigIndex)}（小节 {g.smalls.join('、')}）</Text>
             ) : null}
             {g.smalls.map((sm) => {
               const pt = setting.periodTimes[sm - 1] ?? DEFAULT_PERIOD_TIMES[sm - 1] ?? { start: '', end: '' };

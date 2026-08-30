@@ -124,7 +124,7 @@ export default function SettingsScreen() {
           <TouchableOpacity onPress={() => setSetting({ ...setting, periodsPerDay: setting.periodsPerDay + 1 })}><Text style={styles.nav}>+</Text></TouchableOpacity>
         </View>
         <View style={styles.row}>
-          <Text style={styles.lbl}>两小节=一大节（{setting.bigPeriodSize}）</Text>
+          <Text style={styles.lbl}>合并两节（{setting.bigPeriodSize}）</Text>
           <TouchableOpacity onPress={() => setSetting({ ...setting, bigPeriodSize: setting.bigPeriodSize === 2 ? 1 : 2 })}><Text>{setting.bigPeriodSize === 2 ? '开' : '关'}</Text></TouchableOpacity>
         </View>
       </View>
