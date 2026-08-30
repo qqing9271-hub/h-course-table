@@ -21,6 +21,8 @@ export interface ScheduleSetting {
   bigPeriodSize: number; // 两个小节=一大节
   periodTimes: PeriodTime[];
   showWeekend: boolean;
+  dayFontSize: number;
+  weekFontSize: number;
 }
 
 export interface Course {

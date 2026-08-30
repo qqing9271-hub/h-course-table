@@ -10,6 +10,8 @@ export function defaultScheduleSetting(): ScheduleSetting {
     bigPeriodSize: DEFAULT_BIG_PERIOD_SIZE,
     periodTimes: DEFAULT_PERIOD_TIMES,
     showWeekend: true,
+    dayFontSize: 16,
+    weekFontSize: 12,
   };
 }
 

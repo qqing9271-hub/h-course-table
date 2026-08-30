@@ -56,11 +56,11 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         {dayTimeline.map((slot) => {
           const pt = bigPeriodRange(setting, slot.bigIndex);
           return (
-            <TouchableOpacity key={slot.bigIndex} style={styles.slot} onPress={() => setEditCell({ weekday: schWd, bigPeriod: slot.bigIndex, course: slot.courses[0] })}>
+            <TouchableOpacity key={slot.bigIndex} style={[styles.slot, { minHeight: setting.dayFontSize * 2 + 40 }]} onPress={() => setEditCell({ weekday: schWd, bigPeriod: slot.bigIndex, course: slot.courses[0] })}>
               <Text style={styles.slotLabel}>{bigPeriodLabel(setting, slot.bigIndex) + (pt && pt.start ? '  ' + pt.start + '-' + pt.end : '')}</Text>
               {slot.courses.length === 0 ? <Text style={styles.empty}>（无课，点击添加）</Text> : slot.courses.map((c) => (
                 <View key={c.id} style={styles.course}>
-                  <Text style={styles.courseName}>{c.name}</Text>
+                  <Text style={[styles.courseName, { fontSize: setting.dayFontSize }]}>{c.name}</Text>
                   <Text style={styles.courseMeta}>{c.teacher ? c.teacher : ''}{c.room ? ' ' + c.room : ''}</Text>
                 </View>
               ))}
@@ -79,7 +79,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
           {days.map((d) => (<View key={d} style={styles.gridHeadCell}><Text style={styles.gridHeadTxt}>{WEEK_NAMES[d]}</Text></View>))}
         </View>
         {weekGrid.map((row) => (
-          <View key={row.bigPeriod} style={styles.gridRow}>
+          <View key={row.bigPeriod} style={[styles.gridRow, { minHeight: setting.weekFontSize * 2 + 40 }]}>
             <View style={styles.timeCol}>
               <Text style={styles.timeTxt}>{bigPeriodLabel(setting, row.bigPeriod)}</Text>
               <Text style={styles.timeSmall}>{row.start ? row.start + '-' + row.end : ''}</Text>
@@ -88,7 +88,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
               <TouchableOpacity key={cell.day} style={styles.gridCell} onPress={() => setEditCell({ weekday: cell.day, bigPeriod: row.bigPeriod, course: cell.courses[0] })}>
                 {cell.courses.map((c) => (
                   <View key={c.id} style={styles.course}>
-                    <Text style={styles.courseName}>{c.name}</Text>
+                    <Text style={[styles.courseName, { fontSize: setting.weekFontSize }]}>{c.name}</Text>
                     <Text style={styles.courseMeta}>{c.room ? c.room : ''}</Text>
                   </View>
                 ))}
@@ -133,6 +133,17 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, -7))}><Text style={styles.nav2}>‹ 上一周</Text></TouchableOpacity>
         <Text style={styles.weekLabel}>{inSem ? '第 ' + schWeek + ' 周' : weekText}</Text>
         <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, 7))}><Text style={styles.nav2}>下一周 ›</Text></TouchableOpacity>
+      </View>
+
+      <View style={styles.fontRow}>
+        <Text style={styles.lbl}>当日字体</Text>
+        <TouchableOpacity onPress={() => setSetting({ ...setting, dayFontSize: Math.max(12, setting.dayFontSize - 2) })}><Text style={styles.nav2}>－</Text></TouchableOpacity>
+        <Text style={styles.lbl}>{setting.dayFontSize}</Text>
+        <TouchableOpacity onPress={() => setSetting({ ...setting, dayFontSize: Math.min(20, setting.dayFontSize + 2) })}><Text style={styles.nav2}>＋</Text></TouchableOpacity>
+        <Text style={styles.lbl}>  一周字体</Text>
+        <TouchableOpacity onPress={() => setSetting({ ...setting, weekFontSize: Math.max(12, setting.weekFontSize - 2) })}><Text style={styles.nav2}>－</Text></TouchableOpacity>
+        <Text style={styles.lbl}>{setting.weekFontSize}</Text>
+        <TouchableOpacity onPress={() => setSetting({ ...setting, weekFontSize: Math.min(20, setting.weekFontSize + 2) })}><Text style={styles.nav2}>＋</Text></TouchableOpacity>
       </View>
 
       {!semester ? (
@@ -233,6 +244,8 @@ const styles = StyleSheet.create({
   weekNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   nav2: { color: '#4a90e2', fontSize: 14, paddingHorizontal: 6 },
   weekLabel: { fontWeight: '700' },
+  fontRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
+  lbl: { fontSize: 13 },
   noticeCard: { backgroundColor: '#fff', borderRadius: 10, padding: 16, marginBottom: 8, alignItems: 'center' },
   noticeTxt: { fontSize: 14, color: '#666', marginBottom: 8, textAlign: 'center' },
   noticeRow: { flexDirection: 'row', gap: 10, flexWrap: 'wrap', justifyContent: 'center' },

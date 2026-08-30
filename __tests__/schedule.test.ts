@@ -86,3 +86,10 @@ test('大节标签: 合并两节显示 1-2 节, 关闭显示 1 节', () => {
   const s2 = { ...s, bigPeriodSize: 1 };
   expect(bigPeriodLabel(s2, 1)).toBe('1 节');
 });
+test('字号默认值在 12-20 之间', () => {
+  const s = defaultScheduleSetting();
+  expect(s.dayFontSize).toBeGreaterThanOrEqual(12);
+  expect(s.dayFontSize).toBeLessThanOrEqual(20);
+  expect(s.weekFontSize).toBeGreaterThanOrEqual(12);
+  expect(s.weekFontSize).toBeLessThanOrEqual(20);
+});
