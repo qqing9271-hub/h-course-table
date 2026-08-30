@@ -23,6 +23,7 @@ export interface ScheduleSetting {
   showWeekend: boolean;
   dayFontSize: number;
   weekFontSize: number;
+  themeMode: 'light' | 'dark';
 }
 
 export interface Course {

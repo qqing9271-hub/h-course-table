@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useAppStore } from '../store/appStore';
+import { useTheme, ThemeColors } from '../theme';
 
 function todayStr(): string {
   const d = new Date();
@@ -11,6 +12,8 @@ function todayStr(): string {
 }
 
 export default function NotesScreen() {
+  const c = useTheme();
+  const styles = useMemo(() => createStyles(c), [c]);
   const { notes, addNote, removeNote } = useAppStore();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -56,18 +59,18 @@ export default function NotesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: '#f5f5f5' },
+const createStyles = (c: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: c.bg },
   head: { fontSize: 22, fontWeight: '700', marginBottom: 10 },
-  inputBox: { backgroundColor: '#fff', borderRadius: 10, padding: 10, marginBottom: 10 },
-  input: { borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 6, marginBottom: 6 },
-  addBtn: { backgroundColor: '#4a90e2', borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 4 },
-  addTxt: { color: '#fff', fontWeight: '600' },
-  card: { backgroundColor: '#fff', borderRadius: 10, padding: 10, marginBottom: 8 },
+  inputBox: { backgroundColor: c.card, borderRadius: 10, padding: 10, marginBottom: 10 },
+  input: { borderBottomWidth: 1, borderColor: c.line, paddingVertical: 6, marginBottom: 6 },
+  addBtn: { backgroundColor: c.primary, borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 4 },
+  addTxt: { color: c.textOnPrimary, fontWeight: '600' },
+  card: { backgroundColor: c.card, borderRadius: 10, padding: 10, marginBottom: 8 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontWeight: '700' },
-  date: { color: '#999', fontSize: 12 },
-  content: { color: '#444', marginTop: 4 },
-  del: { color: '#c00', marginTop: 6 },
-  empty: { color: '#aaa', textAlign: 'center', marginTop: 30 },
+  date: { color: c.sub, fontSize: 12 },
+  content: { color: c.text, marginTop: 4 },
+  del: { color: c.danger, marginTop: 6 },
+  empty: { color: c.sub, textAlign: 'center', marginTop: 30 },
 });

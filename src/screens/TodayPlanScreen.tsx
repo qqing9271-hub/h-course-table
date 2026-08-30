@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useAppStore } from '../store/appStore';
+import { useTheme, ThemeColors } from '../theme';
 import { getPlansByDate } from '../domain/plans';
 import { Plan } from '../types';
 
@@ -19,13 +20,14 @@ function addDays(d: Date, n: number): Date {
 const BOARDS: Plan['board'][] = ['plan', 'doing', 'done'];
 const LABELS: Record<Plan['board'], string> = { plan: '计划', doing: '进行中', done: '已完成' };
 
-function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan, removePlan }: {
+function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan, removePlan, styles }: {
   p: Plan;
   movePlanAction: (id: string, board: Plan['board']) => void;
   completePlan: (id: string, d: boolean) => void;
   addReview: (id: string, r: string) => void;
   updatePlan: (id: string, patch: Partial<Plan>) => void;
   removePlan: (id: string) => void;
+  styles: any;
 }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(p.title);
@@ -74,6 +76,8 @@ function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan, remo
 }
 
 export default function TodayPlanScreen() {
+  const c = useTheme();
+  const styles = useMemo(() => createStyles(c), [c]);
   const { plans, addPlan, movePlanAction, completePlan, addReview, updatePlan, removePlan } = useAppStore();
   const [date, setDate] = useState(localDateStr(new Date()));
   const [title, setTitle] = useState('');
@@ -108,7 +112,7 @@ export default function TodayPlanScreen() {
           <View key={b} style={styles.board}>
             <Text style={styles.boardTitle}>{LABELS[b]}</Text>
             {today.filter((p) => p.board === b).map((p) => (
-              <PlanCard key={p.id} p={p} movePlanAction={movePlanAction} completePlan={completePlan} addReview={addReview} updatePlan={updatePlan} removePlan={removePlan} />
+              <PlanCard key={p.id} p={p} movePlanAction={movePlanAction} completePlan={completePlan} addReview={addReview} updatePlan={updatePlan} removePlan={removePlan} styles={styles} />
             ))}
           </View>
         ))}
@@ -117,31 +121,31 @@ export default function TodayPlanScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (c: ThemeColors) => StyleSheet.create({
   container: { paddingVertical: 8 },
   planHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   planHeadTitle: { fontSize: 16, fontWeight: '700' },
   dateNav: { flexDirection: 'row', alignItems: 'center' },
-  navSmall: { fontSize: 18, color: '#4a90e2', paddingHorizontal: 8 },
-  dateSmall: { fontSize: 12, color: '#888' },
-  inputBox: { backgroundColor: '#fff', borderRadius: 10, padding: 10, marginBottom: 10 },
-  input: { borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 6, marginBottom: 6 },
-  addBtn: { backgroundColor: '#4a90e2', borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 4 },
-  addTxt: { color: '#fff', fontWeight: '600' },
+  navSmall: { fontSize: 18, color: c.primary, paddingHorizontal: 8 },
+  dateSmall: { fontSize: 12, color: c.sub },
+  inputBox: { backgroundColor: c.card, borderRadius: 10, padding: 10, marginBottom: 10 },
+  input: { borderBottomWidth: 1, borderColor: c.line, paddingVertical: 6, marginBottom: 6 },
+  addBtn: { backgroundColor: c.primary, borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 4 },
+  addTxt: { color: c.textOnPrimary, fontWeight: '600' },
   boards: { flexDirection: 'column', gap: 8 },
-  board: { backgroundColor: '#fff', borderRadius: 10, padding: 10, minHeight: 120, marginBottom: 8 },
+  board: { backgroundColor: c.card, borderRadius: 10, padding: 10, minHeight: 120, marginBottom: 8 },
   boardTitle: { fontWeight: '700', marginBottom: 6 },
-  card: { backgroundColor: '#fafafa', borderRadius: 8, padding: 8, marginBottom: 8 },
-  editInput: { borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 6, marginBottom: 6 },
+  card: { backgroundColor: c.cardBg, borderRadius: 8, padding: 8, marginBottom: 8 },
+  editInput: { borderWidth: 1, borderColor: c.line, borderRadius: 6, padding: 6, marginBottom: 6 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  editLink: { color: '#4a90e2', fontSize: 12 },
+  editLink: { color: c.primary, fontSize: 12 },
   cardActions: { flexDirection: 'row', gap: 12 },
-  delLink: { color: '#c00', fontSize: 12 },
+  delLink: { color: c.danger, fontSize: 12 },
   title: { fontWeight: '600' },
-  content: { color: '#666', fontSize: 12 },
+  content: { color: c.sub, fontSize: 12 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
   smallBtn: { paddingHorizontal: 4, paddingVertical: 2 },
-  link: { color: '#4a90e2', fontSize: 12 },
-  review: { marginTop: 6, borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 6 },
-  cardDate: { fontSize: 10, color: '#aaa', marginTop: 6, textAlign: 'left' },
+  link: { color: c.primary, fontSize: 12 },
+  review: { marginTop: 6, borderWidth: 1, borderColor: c.line, borderRadius: 6, padding: 6 },
+  cardDate: { fontSize: 10, color: c.sub, marginTop: 6, textAlign: 'left' },
 });

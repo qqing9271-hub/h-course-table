@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
 import { useAppStore } from '../store/appStore';
+import { useTheme, ThemeColors } from '../theme';
 import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
 import { buildDayTimeline, buildWeekGrid, bigPeriodRange, bigPeriodLabel } from '../domain/schedule';
 import { coursesForSemester } from '../domain/semesters';
@@ -23,6 +24,8 @@ function weekdayOneStr(s: string): number {
 }
 
 export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
+  const c = useTheme();
+  const styles = useMemo(() => createStyles(c), [c]);
   const { semester, setting, courses: allCourses, setSetting, addCourse, updateCourse, semesters, setActiveSemester } = useAppStore();
   const courses = coursesForSemester(allCourses, semester?.id);
   const [view, setView] = useState<'day' | 'week'>('week');
@@ -122,6 +125,12 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
             <View style={[styles.checkbox, setting.showWeekend && styles.checkboxOn]}>{setting.showWeekend ? <Text style={styles.checkMark}>✓</Text> : null}</View>
             <Text style={styles.checkTxt}>显示周六日</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.themeBtn}
+            onPress={() => setSetting({ ...setting, themeMode: setting.themeMode === 'dark' ? 'light' : 'dark' })}
+          >
+            <Text style={styles.themeTxt}>{setting.themeMode === 'dark' ? '☀️ 浅色' : '🌙 深色'}</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -190,14 +199,14 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
 
       <Modal visible={showSemModal} transparent animationType="slide" onRequestClose={() => setShowSemModal(false)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 28 }}>
-          <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 16 }}>
+          <View style={{ backgroundColor: c.card, borderRadius: 12, padding: 16 }}>
             <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 10 }}>选择要在首页显示的学期</Text>
             {semesters.map((s) => (
-              <TouchableOpacity key={s.id} style={{ paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee' }} onPress={() => { setActiveSemester(s.id); setShowSemModal(false); setSchDate(todayStr); }}>
+              <TouchableOpacity key={s.id} style={{ paddingVertical: 10, borderBottomWidth: 1, borderColor: c.line }} onPress={() => { setActiveSemester(s.id); setShowSemModal(false); setSchDate(todayStr); }}>
                 <Text>{s.name}{semester && semester.id === s.id ? '  [当前]' : ''}</Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity style={{ marginTop: 12, backgroundColor: '#ddd', borderRadius: 8, padding: 10, alignItems: 'center' }} onPress={() => setShowSemModal(false)}>
+            <TouchableOpacity style={{ marginTop: 12, backgroundColor: c.line, borderRadius: 8, padding: 10, alignItems: 'center' }} onPress={() => setShowSemModal(false)}>
               <Text>取消</Text>
             </TouchableOpacity>
           </View>
@@ -218,50 +227,52 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: '#f5f5f5' },
+const createStyles = (c: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: c.bg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
   headerLeft: { flex: 1 },
   headerRight: { alignItems: 'flex-end' },
   dateRow: { flexDirection: 'row', alignItems: 'center' },
   date: { fontSize: 22, fontWeight: '700' },
-  nav: { fontSize: 24, color: '#4a90e2', paddingHorizontal: 8 },
-  sub: { color: '#666', marginTop: 2 },
-  setBtn: { marginTop: 8, backgroundColor: '#4a90e2', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, alignSelf: 'flex-start' },
-  setTxt: { color: '#fff', fontSize: 13 },
+  nav: { fontSize: 24, color: c.primary, paddingHorizontal: 8 },
+  sub: { color: c.sub, marginTop: 2 },
+  setBtn: { marginTop: 8, backgroundColor: c.primary, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, alignSelf: 'flex-start' },
+  setTxt: { color: c.textOnPrimary, fontSize: 13 },
   checkRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
-  checkbox: { width: 20, height: 20, borderRadius: 4, borderWidth: 1, borderColor: '#999', alignItems: 'center', justifyContent: 'center', marginRight: 6 },
-  checkboxOn: { backgroundColor: '#4a90e2', borderColor: '#4a90e2' },
-  checkMark: { color: '#fff', fontSize: 12 },
-  checkTxt: { color: '#444', fontSize: 13 },
+  checkbox: { width: 20, height: 20, borderRadius: 4, borderWidth: 1, borderColor: c.sub, alignItems: 'center', justifyContent: 'center', marginRight: 6 },
+  checkboxOn: { backgroundColor: c.primary, borderColor: c.primary },
+  checkMark: { color: c.textOnPrimary, fontSize: 12 },
+  checkTxt: { color: c.text, fontSize: 13 },
+  themeBtn: { marginTop: 8, backgroundColor: c.primary, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, alignSelf: 'flex-end' },
+  themeTxt: { color: c.textOnPrimary, fontSize: 13 },
   warnRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  warn: { color: '#c00' },
-  jumpBtn: { marginLeft: 12, backgroundColor: '#4a90e2', borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4 },
-  jumpTxt: { color: '#fff', fontSize: 12 },
+  warn: { color: c.danger },
+  jumpBtn: { marginLeft: 12, backgroundColor: c.primary, borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4 },
+  jumpTxt: { color: c.textOnPrimary, fontSize: 12 },
   toggle: { flexDirection: 'row', marginBottom: 8 },
-  togBtn: { paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8, backgroundColor: '#ddd', marginRight: 8 },
-  togActive: { backgroundColor: '#4a90e2' },
+  togBtn: { paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8, backgroundColor: c.line, marginRight: 8 },
+  togActive: { backgroundColor: c.primary },
   weekNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  nav2: { color: '#4a90e2', fontSize: 14, paddingHorizontal: 6 },
+  nav2: { color: c.primary, fontSize: 14, paddingHorizontal: 6 },
   weekLabel: { fontWeight: '700' },
   fontRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
   lbl: { fontSize: 13 },
-  noticeCard: { backgroundColor: '#fff', borderRadius: 10, padding: 16, marginBottom: 8, alignItems: 'center' },
-  noticeTxt: { fontSize: 14, color: '#666', marginBottom: 8, textAlign: 'center' },
+  noticeCard: { backgroundColor: c.card, borderRadius: 10, padding: 16, marginBottom: 8, alignItems: 'center' },
+  noticeTxt: { fontSize: 14, color: c.sub, marginBottom: 8, textAlign: 'center' },
   noticeRow: { flexDirection: 'row', gap: 10, flexWrap: 'wrap', justifyContent: 'center' },
   sectionTitle: { fontSize: 14, fontWeight: '700', color: '#555', marginTop: 8, marginBottom: 6 },
-  slot: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 8 },
-  slotLabel: { color: '#888', fontSize: 12, marginBottom: 4 },
-  empty: { color: '#bbb' },
+  slot: { backgroundColor: c.card, borderRadius: 10, padding: 12, marginBottom: 8 },
+  slotLabel: { color: c.sub, fontSize: 12, marginBottom: 4 },
+  empty: { color: c.sub },
   course: { marginTop: 4 },
   courseName: { fontSize: 16, fontWeight: '600' },
-  courseMeta: { color: '#666', fontSize: 12 },
-  gridHeader: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 8, paddingVertical: 6 },
+  courseMeta: { color: c.sub, fontSize: 12 },
+  gridHeader: { flexDirection: 'row', backgroundColor: c.card, borderRadius: 8, paddingVertical: 6 },
   gridHeadCell: { flex: 1, alignItems: 'center' },
   gridHeadTxt: { fontWeight: '700', fontSize: 13 },
-  gridRow: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 8, marginTop: 4, padding: 4, minHeight: 64 },
+  gridRow: { flexDirection: 'row', backgroundColor: c.card, borderRadius: 8, marginTop: 4, padding: 4, minHeight: 64 },
   timeCol: { width: 70, justifyContent: 'center', alignItems: 'center', paddingRight: 4 },
   timeTxt: { fontWeight: '700', fontSize: 12 },
-  timeSmall: { fontSize: 10, color: '#888', textAlign: 'center' },
+  timeSmall: { fontSize: 10, color: c.sub, textAlign: 'center' },
   gridCell: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 2 },
 });

@@ -12,6 +12,7 @@ export function defaultScheduleSetting(): ScheduleSetting {
     showWeekend: true,
     dayFontSize: 16,
     weekFontSize: 12,
+    themeMode: 'light' as const,
   };
 }
 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useAppStore } from '../store/appStore';
+import { useTheme, ThemeColors } from '../theme';
 import { createBackupData, restoreFromBackup } from '../domain/backup';
 import { currentWeek } from '../domain/semester';
 import * as DocumentPicker from 'expo-document-picker';
@@ -11,6 +12,8 @@ import { parseScheduleGrid } from '../domain/excelGrid';
 import CalendarModal from '../components/CalendarModal';
 
 export default function SettingsScreen() {
+  const c = useTheme();
+  const styles = useMemo(() => createStyles(c), [c]);
   const {
     semester, setSemester, setSetting,
     semesters, activeSemesterId, addSemester, removeSemesterAction, setActiveSemester,
@@ -99,7 +102,7 @@ export default function SettingsScreen() {
         <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="如 16" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
         <View style={styles.row}>
           <TouchableOpacity style={styles.btn} onPress={saveSemester}><Text style={styles.btnTxt}>保存学期</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.btn, { backgroundColor: '#777' }]} onPress={() => { setSName(''); setSStart(''); setSWeeks(''); setFormSemId(null); setMsg('已进入新建模式，填好点保存'); }}><Text style={styles.btnTxt}>新建学期</Text></TouchableOpacity>
+          <TouchableOpacity style={[styles.btn, { backgroundColor: c.sub }]} onPress={() => { setSName(''); setSStart(''); setSWeeks(''); setFormSemId(null); setMsg('已进入新建模式，填好点保存'); }}><Text style={styles.btnTxt}>新建学期</Text></TouchableOpacity>
         </View>
         {msg ? <Text style={styles.msg}>{msg}</Text> : null}
       </View>
@@ -113,8 +116,8 @@ export default function SettingsScreen() {
               {s.id !== activeSemesterId ? (
                 <TouchableOpacity style={styles.smallBtn} onPress={() => setActiveSemester(s.id)}><Text>首页显示</Text></TouchableOpacity>
               ) : null}
-              <TouchableOpacity style={styles.smallBtn} onPress={() => importExcelFor(s.id)}><Text style={{ color: '#2e7d32' }}>导入课表</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.smallBtn} onPress={() => removeSemesterAction(s.id)}><Text style={{ color: '#c00' }}>删除</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.smallBtn} onPress={() => importExcelFor(s.id)}><Text style={{ color: c.success }}>导入课表</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.smallBtn} onPress={() => removeSemesterAction(s.id)}><Text style={{ color: c.danger }}>删除</Text></TouchableOpacity>
             </View>
           </View>
         ))}
@@ -138,7 +141,7 @@ export default function SettingsScreen() {
         <Text style={styles.cap}>数据安全</Text>
         <TouchableOpacity style={styles.btn} onPress={doBackup}><Text style={styles.btnTxt}>手动备份（导出备份JSON）</Text></TouchableOpacity>
         <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={[styles.input, { minHeight: 60 }]} multiline placeholder="粘贴备份 JSON 以恢复" value={restoreText} onChangeText={setRestoreText} />
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#777' }]} onPress={doRestore}><Text style={styles.btnTxt}>从备份恢复</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: c.sub }]} onPress={doRestore}><Text style={styles.btnTxt}>从备份恢复</Text></TouchableOpacity>
         <Text style={styles.lbl}>已有备份：{backups.length} 份</Text>
       </View>
 
@@ -152,21 +155,21 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: '#f5f5f5' },
+const createStyles = (c: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: c.bg },
   head: { fontSize: 22, fontWeight: '700', marginBottom: 10 },
-  card: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 10 },
+  card: { backgroundColor: c.card, borderRadius: 10, padding: 12, marginBottom: 10 },
   cap: { fontWeight: '700', marginBottom: 6 },
-  fieldLabel: { fontSize: 12, color: '#666', marginTop: 6, marginBottom: 2 },
-  dateBtn: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 10, marginBottom: 6 },
-  dateBtnTxt: { color: '#333' },
-  input: { borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 6, marginBottom: 6 },
+  fieldLabel: { fontSize: 12, color: c.sub, marginTop: 6, marginBottom: 2 },
+  dateBtn: { borderWidth: 1, borderColor: c.line, borderRadius: 8, padding: 10, marginBottom: 6 },
+  dateBtnTxt: { color: c.text },
+  input: { borderBottomWidth: 1, borderColor: c.line, paddingVertical: 6, marginBottom: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 6 },
   lbl: { fontSize: 14, marginBottom: 6 },
-  nav: { fontSize: 24, paddingHorizontal: 10, color: '#4a90e2' },
-  btn: { backgroundColor: '#4a90e2', borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 6 },
-  btnTxt: { color: '#fff', fontWeight: '600' },
-  msg: { color: '#2e7d32', marginTop: 8 },
+  nav: { fontSize: 24, paddingHorizontal: 10, color: c.primary },
+  btn: { backgroundColor: c.primary, borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 6 },
+  btnTxt: { color: c.textOnPrimary, fontWeight: '600' },
+  msg: { color: c.success, marginTop: 8 },
   semRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 4 },
-  smallBtn: { backgroundColor: '#eee', borderRadius: 6, padding: 4, paddingHorizontal: 8, marginRight: 6 },
+  smallBtn: { backgroundColor: c.line, borderRadius: 6, padding: 4, paddingHorizontal: 8, marginRight: 6 },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Modal,
 } from 'react-native';
@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Platform } from 'react-native';
 import { useAppStore } from '../store/appStore';
+import { useTheme, ThemeColors } from '../theme';
 import { parseScheduleGrid } from '../domain/excelGrid';
 import { serializeSchedule, parseSchedule } from '../domain/share';
 import { bigPeriodGroups, bigPeriodLabel } from '../domain/schedule';
@@ -21,6 +22,8 @@ function todayStr(): string {
 }
 
 export default function ScheduleEditScreen() {
+  const c = useTheme();
+  const styles = useMemo(() => createStyles(c), [c]);
   const {
     setting, setSetting, semester, setSemester, addSemester,
     semesters, setActiveSemester,
@@ -163,9 +166,9 @@ export default function ScheduleEditScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cap}>导入 / 导出课表</Text>
-        <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#c77' }]} onPress={importExcel}><Text style={styles.addTxt}>导入Excel</Text></TouchableOpacity>
-        <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#2e7d32' }]} onPress={() => setQrValue(serializeSchedule({ courses: [], setting, semester: semester ?? undefined }))}><Text style={styles.addTxt}>生成二维码</Text></TouchableOpacity>
-        <TouchableOpacity style={[styles.addBtn, { backgroundColor: '#6a3d9a' }]} onPress={startScan}><Text style={styles.addTxt}>扫码导入</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.addBtn, { backgroundColor: c.primary }]} onPress={importExcel}><Text style={styles.addTxt}>导入Excel</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.addBtn, { backgroundColor: c.success }]} onPress={() => setQrValue(serializeSchedule({ courses: [], setting, semester: semester ?? undefined }))}><Text style={styles.addTxt}>生成二维码</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.addBtn, { backgroundColor: c.primary }]} onPress={startScan}><Text style={styles.addTxt}>扫码导入</Text></TouchableOpacity>
       </View>
 
       <Modal visible={!!qrValue} transparent animationType="slide" onRequestClose={() => setQrValue(null)}>
@@ -208,23 +211,23 @@ export default function ScheduleEditScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: '#f5f5f5' },
+const createStyles = (c: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: c.bg },
   head: { fontSize: 22, fontWeight: '700', marginBottom: 10 },
-  msg: { color: '#2e7d32', marginBottom: 8 },
-  card: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 10 },
+  msg: { color: c.success, marginBottom: 8 },
+  card: { backgroundColor: c.card, borderRadius: 10, padding: 12, marginBottom: 10 },
   cap: { fontWeight: '700', marginBottom: 6 },
-  input: { borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 6, marginBottom: 6 },
+  input: { borderBottomWidth: 1, borderColor: c.line, paddingVertical: 6, marginBottom: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 },
   lbl: { fontSize: 14 },
-  nav: { fontSize: 22, paddingHorizontal: 10, color: '#4a90e2' },
+  nav: { fontSize: 22, paddingHorizontal: 10, color: c.primary },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
-  timeInput: { flex: 1, borderWidth: 1, borderColor: '#ddd', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 6 },
-  addBtn: { backgroundColor: '#4a90e2', borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 6, flex: 1, marginRight: 6 },
-  addTxt: { color: '#fff', fontWeight: '600' },
-  closeBtn: { alignSelf: 'center', backgroundColor: '#4a90e2', borderRadius: 8, paddingHorizontal: 28, paddingVertical: 10, marginTop: 12 },
+  timeInput: { flex: 1, borderWidth: 1, borderColor: c.line, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 6 },
+  addBtn: { backgroundColor: c.primary, borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 6, flex: 1, marginRight: 6 },
+  addTxt: { color: c.textOnPrimary, fontWeight: '600' },
+  closeBtn: { alignSelf: 'center', backgroundColor: c.primary, borderRadius: 8, paddingHorizontal: 28, paddingVertical: 10, marginTop: 12 },
   qrModal: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-  qrBox: { backgroundColor: '#fff', padding: 20, borderRadius: 12, alignItems: 'center' },
+  qrBox: { backgroundColor: c.card, padding: 20, borderRadius: 12, alignItems: 'center' },
   qrTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
-  semChoice: { backgroundColor: '#f0f0f0', borderRadius: 8, padding: 10, marginBottom: 8, alignItems: 'center' },
+  semChoice: { backgroundColor: c.line, borderRadius: 8, padding: 10, marginBottom: 8, alignItems: 'center' },
 });
