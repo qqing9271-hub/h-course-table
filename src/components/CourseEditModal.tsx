@@ -36,7 +36,7 @@ export default function CourseEditModal({ visible, semesterId, weekday, bigPerio
     const rule: WeeksRule =
       mode === 'all' ? { type: 'all' } : mode === 'odd' ? { type: 'odd' } : mode === 'even' ? { type: 'even' } : { type: 'custom', weeks };
     onSave({
-      id: course?.id ?? 'c' + Date.now(),
+      id: course?.id ?? 'c' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
       semesterId,
       name,
       teacher: teacher || undefined,

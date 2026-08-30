@@ -16,7 +16,7 @@ export default function NotesScreen() {
   const [content, setContent] = useState('');
 
   function add() {
-    addNote({ id: 'n' + Date.now(), date: todayStr(), title: title.trim(), content });
+    addNote({ id: 'n' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), date: todayStr(), title: title.trim(), content });
     setTitle('');
     setContent('');
   }

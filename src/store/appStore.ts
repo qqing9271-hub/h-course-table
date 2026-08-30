@@ -176,9 +176,26 @@ export const useAppStore = create<AppState>()(
           p.semesters && p.semesters.length ? p.semesters : p.semester ? [p.semester] : [];
         const activeId = p.activeSemesterId ?? semesters[0]?.id ?? null;
         const sem = semesters.find((s) => s.id === activeId) ?? null;
-        const courses: Course[] = (p.courses ?? []).map((c) =>
-          c.semesterId ? c : { ...c, semesterId: activeId ?? undefined },
+        const uni = <T extends { id: string }>(arr: T[], prefix: string): T[] => {
+          const seen = new Set<string>();
+          return arr.map((x) => {
+            let id = x.id;
+            if (!id || seen.has(id)) {
+              let n = 0;
+              do {
+                id = prefix + Date.now() + '-' + (n++) + '-' + Math.random().toString(36).slice(2, 6);
+              } while (seen.has(id));
+            }
+            seen.add(id);
+            return { ...x, id };
+          });
+        };
+        const courses: Course[] = uni(
+          (p.courses ?? []).map((c) => (c.semesterId ? c : { ...c, semesterId: activeId ?? undefined })),
+          'c',
         );
+        const plans: Plan[] = uni(p.plans ?? [], 'p');
+        const notes: Note[] = uni(p.notes ?? [], 'n');
         return {
           ...currentState,
           ...p,
@@ -194,6 +211,8 @@ export const useAppStore = create<AppState>()(
                 : defaultScheduleSetting().periodTimes,
           },
           courses,
+          plans,
+          notes,
         };
       },
     },

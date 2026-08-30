@@ -10,7 +10,15 @@ export function createPlan(
   time?: string,
 ): Plan {
   seq += 1;
-  return { id: 'p' + seq, date, title, content, board, completed: false, time };
+  return {
+    id: 'p' + Date.now() + '-' + Math.random().toString(36).slice(2, 7) + '-' + seq,
+    date,
+    title,
+    content,
+    board,
+    completed: false,
+    time,
+  };
 }
 
 export function movePlan(plans: Plan[], id: string, board: Plan['board']): Plan[] {
