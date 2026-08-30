@@ -135,18 +135,25 @@ export default function ScheduleEditScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cap}>每节时间（大节）</Text>
-        {groups.map((g) => {
-          const pt = setting.periodTimes[g.bigIndex - 1] ?? { start: '', end: '' };
-          return (
-            <View key={g.bigIndex} style={styles.timeRow}>
-              <Text style={styles.lbl}>{g.bigIndex}</Text>
-              <TextInput style={styles.timeInput} placeholder="开始" value={pt.start} onChangeText={(v) => updatePeriodTime(g.bigIndex, 'start', v)} />
-              <Text style={styles.lbl}>-</Text>
-              <TextInput style={styles.timeInput} placeholder="结束" value={pt.end} onChangeText={(v) => updatePeriodTime(g.bigIndex, 'end', v)} />
-            </View>
-          );
-        })}
+        <Text style={styles.cap}>{setting.bigPeriodSize > 1 ? '每小节时间（按大节分组）' : '每小节时间'}</Text>
+        {groups.map((g) => (
+          <View key={g.bigIndex} style={{ marginBottom: 8 }}>
+            {setting.bigPeriodSize > 1 ? (
+              <Text style={styles.lbl}>第 {g.bigIndex} 大节（小节 {g.smalls.join('、')}）</Text>
+            ) : null}
+            {g.smalls.map((sm) => {
+              const pt = setting.periodTimes[sm - 1] ?? DEFAULT_PERIOD_TIMES[sm - 1] ?? { start: '', end: '' };
+              return (
+                <View key={sm} style={styles.timeRow}>
+                  <Text style={styles.lbl}>{sm}</Text>
+                  <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.timeInput} placeholder="开始" value={pt.start} onChangeText={(v) => updatePeriodTime(sm, 'start', v)} />
+                  <Text style={styles.lbl}>-</Text>
+                  <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.timeInput} placeholder="结束" value={pt.end} onChangeText={(v) => updatePeriodTime(sm, 'end', v)} />
+                </View>
+              );
+            })}
+          </View>
+        ))}
       </View>
 
       <View style={styles.card}>
