@@ -4,6 +4,8 @@ import { useAppStore } from '../store/appStore';
 import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
 import { buildDayTimeline, buildWeekGrid } from '../domain/schedule';
 import { coursesForSemester } from '../domain/semesters';
+import CourseEditModal from '../components/CourseEditModal';
+import { Course } from '../types';
 import TodayPlanScreen from './TodayPlanScreen';
 
 const WEEK_NAMES = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
@@ -19,9 +21,10 @@ function weekdayOne(d: Date): number {
 }
 
 export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
-  const { semester, setting, courses: allCourses, setSetting } = useAppStore();
+  const { semester, setting, courses: allCourses, setSetting, addCourse, updateCourse } = useAppStore();
   const courses = coursesForSemester(allCourses, semester?.id);
   const [view, setView] = useState<'day' | 'week'>('day');
+  const [editCell, setEditCell] = useState<{ weekday: number; bigPeriod: number; course?: Course } | null>(null);
   const today = new Date();
   const dstr = localDateStr(today);
 
@@ -59,7 +62,11 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         {dayTimeline.map((slot) => {
           const pt = setting.periodTimes[slot.bigIndex - 1];
           return (
-            <View key={slot.bigIndex} style={styles.slot}>
+            <TouchableOpacity
+              key={slot.bigIndex}
+              style={styles.slot}
+              onPress={() => setEditCell({ weekday: displayWd, bigPeriod: slot.bigIndex, course: slot.courses[0] })}
+            >
               <Text style={styles.slotLabel}>
                 {'第 ' + slot.bigIndex + ' 大节' + (pt && pt.start ? '  ' + pt.start + '-' + pt.end : '')}
               </Text>
@@ -73,7 +80,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
                   </View>
                 ))
               )}
-            </View>
+            </TouchableOpacity>
           );
         })}
       </ScrollView>
@@ -98,14 +105,18 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
               <Text style={styles.timeSmall}>{row.start ? row.start + '-' + row.end : ''}</Text>
             </View>
             {row.cells.map((cell) => (
-              <View key={cell.day} style={styles.gridCell}>
+              <TouchableOpacity
+                key={cell.day}
+                style={styles.gridCell}
+                onPress={() => setEditCell({ weekday: cell.day, bigPeriod: row.bigPeriod, course: cell.courses[0] })}
+              >
                 {cell.courses.map((c) => (
                   <View key={c.id} style={styles.course}>
                     <Text style={styles.courseName}>{c.name}</Text>
                     <Text style={styles.courseMeta}>{c.room ? c.room : ''}</Text>
                   </View>
                 ))}
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         ))}
@@ -151,6 +162,20 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
       <View style={styles.planArea}>
         <TodayPlanScreen />
       </View>
+      {editCell ? (
+        <CourseEditModal
+          visible={!!editCell}
+          semesterId={semester?.id}
+          weekday={editCell.weekday}
+          bigPeriod={editCell.bigPeriod}
+          course={editCell.course}
+          onClose={() => setEditCell(null)}
+          onSave={(c) => {
+            if (editCell.course) updateCourse(c); else addCourse(c);
+            setEditCell(null);
+          }}
+        />
+      ) : null}
     </View>
   );
 }
