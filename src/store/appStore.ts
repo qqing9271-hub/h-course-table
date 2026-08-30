@@ -206,7 +206,8 @@ export const useAppStore = create<AppState>()(
             ...defaultScheduleSetting(),
             ...(p.setting ?? {}),
             periodTimes:
-              p.setting?.periodTimes && p.setting.periodTimes.length
+              p.setting?.periodTimes &&
+              p.setting.periodTimes.length === (p.setting?.periodsPerDay ?? defaultScheduleSetting().periodsPerDay)
                 ? p.setting.periodTimes
                 : defaultScheduleSetting().periodTimes,
           },

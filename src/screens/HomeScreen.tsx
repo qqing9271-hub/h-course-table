@@ -43,10 +43,11 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
     else if (schBefore) weekText = '未开学';
     else if (schAfter) weekText = '已结束';
   }
+  const displayWeek = schWeek >= 1 ? schWeek : 1;
   const dayCount = setting.showWeekend ? 7 : 5;
   const days = Array.from({ length: dayCount }, (_, i) => i + 1);
-  const dayTimeline = buildDayTimeline(courses, schWd, schWeek, setting.periodsPerDay, setting.bigPeriodSize);
-  const weekGrid = buildWeekGrid(courses, schWeek, setting, days);
+  const dayTimeline = buildDayTimeline(courses, schWd, displayWeek, setting.periodsPerDay, setting.bigPeriodSize);
+  const weekGrid = buildWeekGrid(courses, displayWeek, setting, days);
 
   function renderDay() {
     return (
@@ -109,6 +110,11 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
             <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, 1))}><Text style={styles.nav}>›</Text></TouchableOpacity>
           </View>
           <Text style={styles.sub}>{semester ? semester.name + ' · ' + weekText : '未设置学期'}</Text>
+          {!semester || weekText === '未设置学期' ? (
+            <TouchableOpacity style={styles.setBtn} onPress={() => goTo('settings')}>
+              <Text style={styles.setTxt}>去设置学期 ›</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.checkRow} onPress={() => setSetting({ ...setting, showWeekend: !setting.showWeekend })}>
@@ -171,6 +177,8 @@ const styles = StyleSheet.create({
   date: { fontSize: 22, fontWeight: '700' },
   nav: { fontSize: 24, color: '#4a90e2', paddingHorizontal: 8 },
   sub: { color: '#666', marginTop: 2 },
+  setBtn: { marginTop: 8, backgroundColor: '#4a90e2', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, alignSelf: 'flex-start' },
+  setTxt: { color: '#fff', fontSize: 13 },
   checkRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
   checkbox: { width: 20, height: 20, borderRadius: 4, borderWidth: 1, borderColor: '#999', alignItems: 'center', justifyContent: 'center', marginRight: 6 },
   checkboxOn: { backgroundColor: '#4a90e2', borderColor: '#4a90e2' },
