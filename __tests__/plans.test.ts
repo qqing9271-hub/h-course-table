@@ -28,3 +28,17 @@ test('AC-P01: 按日期筛选计划并按板块排序', () => {
   const today = getPlansByDate(plans, '2026-08-29');
   expect(today.map((p) => p.title)).toEqual(['B', 'C', 'A']);
 });
+test('移动一条计划不影响其他计划', () => {
+  let plans: Plan[] = [
+    createPlan('2026-08-29', 'A'),
+    createPlan('2026-08-29', 'B'),
+    createPlan('2026-08-29', 'C'),
+  ];
+  plans = movePlan(plans, plans[1].id, 'doing');
+  expect(plans[0].title).toBe('A');
+  expect(plans[0].board).toBe('plan');
+  expect(plans[1].title).toBe('B');
+  expect(plans[1].board).toBe('doing');
+  expect(plans[2].title).toBe('C');
+  expect(plans[2].board).toBe('plan');
+});
