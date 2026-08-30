@@ -26,8 +26,8 @@ export default function NotesScreen() {
     <View style={styles.container}>
       <Text style={styles.head}>随笔 / 日记</Text>
       <View style={styles.inputBox}>
-        <TextInput style={styles.input} placeholder="标题" value={title} onChangeText={setTitle} />
-        <TextInput
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="标题" value={title} onChangeText={setTitle} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)"
           style={[styles.input, { minHeight: 70 }]}
           placeholder="写点什么..."
           multiline

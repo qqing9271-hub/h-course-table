@@ -41,6 +41,7 @@ interface AppState {
   updateCourse: (c: Course) => void;
   removeCourse: (id: string) => void;
   importCourses: (cs: Course[]) => void;
+  replaceCourses: (cs: Course[]) => void;
   addPlan: (date: string, title: string, content?: string) => void;
   movePlanAction: (id: string, board: Plan['board']) => void;
   completePlan: (id: string, done: boolean) => void;
@@ -70,6 +71,7 @@ export const useAppStore = create<AppState>()(
         set((st) => ({ courses: st.courses.map((x) => (x.id === c.id ? c : x)) })),
       removeCourse: (id) => set((st) => ({ courses: st.courses.filter((x) => x.id !== id) })),
       importCourses: (cs) => set((st) => ({ courses: [...st.courses, ...cs] })),
+      replaceCourses: (cs) => set({ courses: cs }),
       addPlan: (date, title, content) =>
         set((st) => ({ plans: [...st.plans, createPlan(date, title, content)] })),
       movePlanAction: (id, board) => set((st) => ({ plans: movePlanFn(st.plans, id, board) })),

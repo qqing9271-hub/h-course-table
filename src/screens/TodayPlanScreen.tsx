@@ -49,7 +49,7 @@ export default function TodayPlanScreen() {
           </TouchableOpacity>
         </View>
         {p.board === 'done' ? (
-          <TextInput
+          <TextInput placeholderTextColor="rgba(150,150,150,0.45)"
             style={styles.review}
             placeholder="写复盘..."
             defaultValue={p.review ?? ''}
@@ -72,8 +72,8 @@ export default function TodayPlanScreen() {
         </TouchableOpacity>
       </View>
       <View style={styles.inputBox}>
-        <TextInput style={styles.input} placeholder="计划名称" value={title} onChangeText={setTitle} />
-        <TextInput style={styles.input} placeholder="内容（可选）" value={content} onChangeText={setContent} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="计划名称" value={title} onChangeText={setTitle} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="内容（可选）" value={content} onChangeText={setContent} />
         <TouchableOpacity style={styles.addBtn} onPress={add}>
           <Text style={styles.addTxt}>+ 添加计划</Text>
         </TouchableOpacity>

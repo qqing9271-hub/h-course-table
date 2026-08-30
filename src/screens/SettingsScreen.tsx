@@ -45,9 +45,9 @@ export default function SettingsScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cap}>学期</Text>
-        <TextInput style={styles.input} placeholder="学期名（如 2026 秋）" value={sName} onChangeText={setSName} />
-        <TextInput style={styles.input} placeholder="开学日期 yyyy-mm-dd" value={sStart} onChangeText={setSStart} />
-        <TextInput style={styles.input} placeholder="总周数" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="学期名（如 2026 秋）" value={sName} onChangeText={setSName} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="开学日期 yyyy-mm-dd" value={sStart} onChangeText={setSStart} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="总周数" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
         <TouchableOpacity style={styles.btn} onPress={saveSemester}><Text style={styles.btnTxt}>保存学期</Text></TouchableOpacity>
         {msg ? <Text style={styles.msg}>{msg}</Text> : null}
       </View>
@@ -68,7 +68,7 @@ export default function SettingsScreen() {
       <View style={styles.card}>
         <Text style={styles.cap}>数据安全</Text>
         <TouchableOpacity style={styles.btn} onPress={doBackup}><Text style={styles.btnTxt}>手动备份（导出备份JSON）</Text></TouchableOpacity>
-        <TextInput style={[styles.input, { minHeight: 60 }]} multiline placeholder="粘贴备份 JSON 以恢复" value={restoreText} onChangeText={setRestoreText} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={[styles.input, { minHeight: 60 }]} multiline placeholder="粘贴备份 JSON 以恢复" value={restoreText} onChangeText={setRestoreText} />
         <TouchableOpacity style={[styles.btn, { backgroundColor: '#777' }]} onPress={doRestore}><Text style={styles.btnTxt}>从备份恢复</Text></TouchableOpacity>
         <Text style={styles.lbl}>已有备份：{backups.length} 份</Text>
       </View>

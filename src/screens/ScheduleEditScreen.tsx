@@ -7,6 +7,8 @@ import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Platform } from 'react-native';
+import { parseScheduleGrid } from '../domain/excelGrid';
 import { useAppStore } from '../store/appStore';
 import { Course, WeeksRule } from '../types';
 import { serializeSchedule, parseSchedule, mapExcelRows } from '../domain/share';
@@ -14,7 +16,7 @@ import { serializeSchedule, parseSchedule, mapExcelRows } from '../domain/share'
 const WEEK_NAMES = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
 export default function ScheduleEditScreen() {
-  const { courses, setting, setSetting, addCourse, removeCourse, importCourses } = useAppStore();
+  const { courses, setting, setSetting, addCourse, removeCourse, importCourses, replaceCourses, semester, setSemester } = useAppStore();
   const [name, setName] = useState('');
   const [teacher, setTeacher] = useState('');
   const [room, setRoom] = useState('');
@@ -68,15 +70,26 @@ export default function ScheduleEditScreen() {
       });
       if (res.canceled) return;
       const uri = res.assets[0].uri;
-      const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-      const wb = XLSX.read(b64, { type: 'base64' });
+      let wb: any;
+      if (Platform.OS === 'web') {
+        const resp = await fetch(uri);
+        const buf = await resp.arrayBuffer();
+        wb = XLSX.read(buf, { type: 'array' });
+      } else {
+        const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+        wb = XLSX.read(b64, { type: 'base64' });
+      }
       const sheet = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet);
-      const cs = mapExcelRows(rows);
-      importCourses(cs);
-      setMsg('✅ Excel 已导入 ' + cs.length + ' 门课');
+      const grid = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 }) as string[][];
+      const { courses: cs, semesterName } = parseScheduleGrid(grid);
+      replaceCourses(cs);
+      if (semesterName && semester) {
+        setSemester({ ...semester, name: semesterName });
+      }
+      setMsg('✅ Excel 已导入 ' + cs.length + ' 门课' + (semesterName ? '（' + semesterName + '）' : ''));
       Alert.alert('导入成功');
     } catch (e) {
+      setMsg('❌ 导入失败：' + String(e));
       Alert.alert('导入失败', String(e));
     }
   }
@@ -116,12 +129,12 @@ export default function ScheduleEditScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cap}>新增课程</Text>
-        <TextInput style={styles.input} placeholder="课程名" value={name} onChangeText={setName} />
-        <TextInput style={styles.input} placeholder="教师" value={teacher} onChangeText={setTeacher} />
-        <TextInput style={styles.input} placeholder="教室" value={room} onChangeText={setRoom} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="课程名" value={name} onChangeText={setName} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="教师" value={teacher} onChangeText={setTeacher} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="教室" value={room} onChangeText={setRoom} />
         <View style={styles.row}>
-          <TextInput style={[styles.input, { flex: 1 }]} placeholder="星期 1-7" keyboardType="numeric" value={weekday} onChangeText={setWeekday} />
-          <TextInput style={[styles.input, { flex: 1 }]} placeholder="第几大节" keyboardType="numeric" value={bigPeriod} onChangeText={setBigPeriod} />
+          <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={[styles.input, { flex: 1 }]} placeholder="星期 1-7" keyboardType="numeric" value={weekday} onChangeText={setWeekday} />
+          <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={[styles.input, { flex: 1 }]} placeholder="第几大节" keyboardType="numeric" value={bigPeriod} onChangeText={setBigPeriod} />
         </View>
         <View style={styles.row}>
           <Text style={styles.lbl}>周次:</Text>
@@ -132,7 +145,7 @@ export default function ScheduleEditScreen() {
           ))}
         </View>
         {rule === 'custom' ? (
-          <TextInput style={styles.input} placeholder="指定周，如 1,3,5" value={weeks} onChangeText={setWeeks} />
+          <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="指定周，如 1,3,5" value={weeks} onChangeText={setWeeks} />
         ) : null}
         <TouchableOpacity style={styles.addBtn} onPress={add}>
           <Text style={styles.addTxt}>添加</Text>
@@ -141,7 +154,7 @@ export default function ScheduleEditScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cap}>导入 / 导出</Text>
-        <TextInput style={[styles.input, { minHeight: 60 }]} multiline placeholder="粘贴分享/导出的课表 JSON" value={importText} onChangeText={setImportText} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={[styles.input, { minHeight: 60 }]} multiline placeholder="粘贴分享/导出的课表 JSON" value={importText} onChangeText={setImportText} />
         <View style={styles.row}>
           <TouchableOpacity style={styles.addBtn} onPress={exportJson}>
             <Text style={styles.addTxt}>导出JSON</Text>
