@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import * as FileSystem from 'expo-file-system/legacy';
+import { File } from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -55,8 +56,13 @@ export default function ScheduleEditScreen() {
         const buf = await resp.arrayBuffer();
         wb = XLSX.read(buf, { type: 'array' });
       } else {
-        const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-        wb = XLSX.read(b64, { type: 'base64' });
+        try {
+          const buf = await new File(uri).arrayBuffer();
+          wb = XLSX.read(buf, { type: 'array' });
+        } catch (e2) {
+          const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+          wb = XLSX.read(b64, { type: 'base64' });
+        }
       }
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const grid = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 }) as string[][];
@@ -68,6 +74,7 @@ export default function ScheduleEditScreen() {
       }
     } catch (e) {
       setMsg('❌ 导入失败：' + String(e));
+      Alert.alert('导入失败', String(e));
     }
   }
 
@@ -107,7 +114,7 @@ export default function ScheduleEditScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 90 }}>
       <Text style={styles.head}>课表</Text>
       {msg ? <Text style={styles.msg}>{msg}</Text> : null}
 
@@ -135,11 +142,11 @@ export default function ScheduleEditScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cap}>{setting.bigPeriodSize > 1 ? '每小节时间（按大节分组）' : '每小节时间'}</Text>
+        <Text style={styles.cap}>每小节时间</Text>
         {groups.map((g) => (
           <View key={g.bigIndex} style={{ marginBottom: 8 }}>
             {setting.bigPeriodSize > 1 ? (
-              <Text style={styles.lbl}>{bigPeriodLabel(setting, g.bigIndex)}（小节 {g.smalls.join('、')}）</Text>
+              <Text style={styles.lbl}>{bigPeriodLabel(setting, g.bigIndex)}</Text>
             ) : null}
             {g.smalls.map((sm) => {
               const pt = setting.periodTimes[sm - 1] ?? DEFAULT_PERIOD_TIMES[sm - 1] ?? { start: '', end: '' };
@@ -168,7 +175,7 @@ export default function ScheduleEditScreen() {
           <View style={styles.qrBox}>
             <Text style={styles.qrTitle}>扫码导入课表</Text>
             {qrValue ? <QRCode value={qrValue} size={220} /> : null}
-            <TouchableOpacity style={styles.addBtn} onPress={() => setQrValue(null)}><Text style={styles.addTxt}>关闭</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.closeBtn} onPress={() => setQrValue(null)}><Text style={styles.addTxt}>关闭</Text></TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -179,7 +186,7 @@ export default function ScheduleEditScreen() {
             {scanning ? (
               <CameraView style={{ width: 260, height: 260 }} barcodeScannerSettings={{ barcodeTypes: ['qr'] }} onBarcodeScanned={(r) => onScanned(r.data)} />
             ) : null}
-            <TouchableOpacity style={styles.addBtn} onPress={() => setScanning(false)}><Text style={styles.addTxt}>关闭</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.closeBtn} onPress={() => setScanning(false)}><Text style={styles.addTxt}>关闭</Text></TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -217,6 +224,7 @@ const styles = StyleSheet.create({
   timeInput: { flex: 1, borderWidth: 1, borderColor: '#ddd', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 6 },
   addBtn: { backgroundColor: '#4a90e2', borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 6, flex: 1, marginRight: 6 },
   addTxt: { color: '#fff', fontWeight: '600' },
+  closeBtn: { alignSelf: 'center', backgroundColor: '#4a90e2', borderRadius: 8, paddingHorizontal: 28, paddingVertical: 10, marginTop: 12 },
   qrModal: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   qrBox: { backgroundColor: '#fff', padding: 20, borderRadius: 12, alignItems: 'center' },
   qrTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },

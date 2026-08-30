@@ -5,6 +5,7 @@ import { createBackupData, restoreFromBackup } from '../domain/backup';
 import { currentWeek } from '../domain/semester';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import { File } from 'expo-file-system';
 import * as XLSX from 'xlsx';
 import { Platform } from 'react-native';
 import { parseScheduleGrid } from '../domain/excelGrid';
@@ -47,8 +48,13 @@ export default function SettingsScreen() {
         const buf = await resp.arrayBuffer();
         wb = XLSX.read(buf, { type: 'array' });
       } else {
-        const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-        wb = XLSX.read(b64, { type: 'base64' });
+        try {
+          const buf = await new File(uri).arrayBuffer();
+          wb = XLSX.read(buf, { type: 'array' });
+        } catch (e2) {
+          const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+          wb = XLSX.read(b64, { type: 'base64' });
+        }
       }
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const grid = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 }) as string[][];
@@ -58,6 +64,7 @@ export default function SettingsScreen() {
       setMsg('✅ 已导入 ' + cs.length + ' 门课到该学期');
     } catch (e) {
       setMsg('❌ 导入失败：' + String(e));
+      Alert.alert('导入失败', String(e));
     }
   }
 
