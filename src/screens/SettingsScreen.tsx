@@ -23,10 +23,13 @@ export default function SettingsScreen() {
   const [restoreText, setRestoreText] = useState('');
   const [msg, setMsg] = useState('');
   const [showCal, setShowCal] = useState(false);
+  const [formSemId, setFormSemId] = useState<string | null>(semester?.id ?? null);
 
   function saveSemester() {
     if (!sName.trim() || !sStart.trim()) return;
-    addSemester({ id: semester?.id ?? 's' + Date.now(), name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 });
+    const id = formSemId ?? 's' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+    addSemester({ id, name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 });
+    setFormSemId(id);
     setMsg('✅ 已保存学期：当前第 ' + currentWeek({ id: 's', name: sName, startDate: sStart, totalWeeks: parseInt(sWeeks, 10) || 1 }, new Date().toISOString().slice(0, 10)) + ' 周');
     Alert.alert('已保存学期');
   }
@@ -89,7 +92,10 @@ export default function SettingsScreen() {
         </TouchableOpacity>
         <Text style={styles.fieldLabel}>总周数</Text>
         <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="如 16" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
-        <TouchableOpacity style={styles.btn} onPress={saveSemester}><Text style={styles.btnTxt}>保存学期</Text></TouchableOpacity>
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.btn} onPress={saveSemester}><Text style={styles.btnTxt}>保存学期</Text></TouchableOpacity>
+          <TouchableOpacity style={[styles.btn, { backgroundColor: '#777' }]} onPress={() => { setSName(''); setSStart(''); setSWeeks(''); setFormSemId(null); setMsg('已进入新建模式，填好点保存'); }}><Text style={styles.btnTxt}>新建学期</Text></TouchableOpacity>
+        </View>
         {msg ? <Text style={styles.msg}>{msg}</Text> : null}
       </View>
 
@@ -100,7 +106,7 @@ export default function SettingsScreen() {
             <Text style={styles.lbl}>{s.name}{s.id === activeSemesterId ? '  [当前]' : ''}</Text>
             <View style={styles.row}>
               {s.id !== activeSemesterId ? (
-                <TouchableOpacity style={styles.smallBtn} onPress={() => setActiveSemester(s.id)}><Text>设为当前</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.smallBtn} onPress={() => setActiveSemester(s.id)}><Text>首页显示</Text></TouchableOpacity>
               ) : null}
               <TouchableOpacity style={styles.smallBtn} onPress={() => importExcelFor(s.id)}><Text style={{ color: '#2e7d32' }}>导入课表</Text></TouchableOpacity>
               <TouchableOpacity style={styles.smallBtn} onPress={() => removeSemesterAction(s.id)}><Text style={{ color: '#c00' }}>删除</Text></TouchableOpacity>
