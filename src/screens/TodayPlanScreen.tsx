@@ -36,14 +36,14 @@ function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan }: {
 
   const pan = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8,
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 20 && Math.abs(g.dx) > Math.abs(g.dy),
       onPanResponderMove: (_, g) => setDx(g.dx),
       onPanResponderRelease: (_, g) => {
         const pp = latest.current.p;
         const i = BOARDS.indexOf(pp.board);
-        if (g.dx < -50 && i > 0) latest.current.movePlanAction(pp.id, BOARDS[i - 1]);
-        else if (g.dx > 50 && i < 2) latest.current.movePlanAction(pp.id, BOARDS[i + 1]);
+        if (g.dx < -40 && i > 0) latest.current.movePlanAction(pp.id, BOARDS[i - 1]);
+        else if (g.dx > 40 && i < 2) latest.current.movePlanAction(pp.id, BOARDS[i + 1]);
         setDx(0);
       },
       onPanResponderTerminate: () => setDx(0),
@@ -56,7 +56,7 @@ function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan }: {
         <>
           <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.editInput} value={title} onChangeText={setTitle} placeholder="标题" />
           <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.editInput} value={content} onChangeText={setContent} placeholder="内容" />
-          <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.editInput} value={time} onChangeText={setTime} placeholder="时间 HH:mm" />
+          <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.editInput} value={time} onChangeText={setTime} placeholder="计划时间（可选）" />
           <View style={styles.row}>
             <TouchableOpacity style={styles.smallBtn} onPress={() => { updatePlan(p.id, { title, content, time }); setEditing(false); }}><Text>保存</Text></TouchableOpacity>
             <TouchableOpacity style={styles.smallBtn} onPress={() => setEditing(false)}><Text>取消</Text></TouchableOpacity>
@@ -116,7 +116,7 @@ export default function TodayPlanScreen() {
       <View style={styles.inputBox}>
         <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="计划名称" value={title} onChangeText={setTitle} />
         <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="内容（可选）" value={content} onChangeText={setContent} />
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="计划时间 HH:mm（可选）" value={time} onChangeText={setTime} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="计划时间（可选）" value={time} onChangeText={setTime} />
         <TouchableOpacity style={styles.addBtn} onPress={add}><Text style={styles.addTxt}>+ 添加计划</Text></TouchableOpacity>
       </View>
       <View style={styles.boards}>

@@ -185,7 +185,14 @@ export const useAppStore = create<AppState>()(
           semesters,
           activeSemesterId: activeId,
           semester: sem,
-          setting: { ...defaultScheduleSetting(), ...(p.setting ?? {}) },
+          setting: {
+            ...defaultScheduleSetting(),
+            ...(p.setting ?? {}),
+            periodTimes:
+              p.setting?.periodTimes && p.setting.periodTimes.length
+                ? p.setting.periodTimes
+                : defaultScheduleSetting().periodTimes,
+          },
           courses,
         };
       },

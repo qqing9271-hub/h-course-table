@@ -16,8 +16,7 @@ export default function NotesScreen() {
   const [content, setContent] = useState('');
 
   function add() {
-    if (!title.trim()) return;
-    addNote({ id: 'n' + Date.now(), date: todayStr(), title, content });
+    addNote({ id: 'n' + Date.now(), date: todayStr(), title: title.trim() || '（无标题）', content });
     setTitle('');
     setContent('');
   }
@@ -26,7 +25,7 @@ export default function NotesScreen() {
     <View style={styles.container}>
       <Text style={styles.head}>随笔 / 日记</Text>
       <View style={styles.inputBox}>
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="标题" value={title} onChangeText={setTitle} />
+        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="标题（可选）" value={title} onChangeText={setTitle} />
         <TextInput placeholderTextColor="rgba(150,150,150,0.45)"
           style={[styles.input, { minHeight: 70 }]}
           placeholder="写点什么..."
