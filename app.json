@@ -7,9 +7,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.qingmae.hcoursetable"
     },
     "android": {
+      "package": "com.qingmae.hcoursetable",
       "adaptiveIcon": {
         "backgroundColor": "#A6E3A1",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -20,6 +22,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "325cbbea-31e4-43da-bd7e-8bf28f7a33a9"
+      }
+    },
+    "owner": "qingmae"
   }
 }
