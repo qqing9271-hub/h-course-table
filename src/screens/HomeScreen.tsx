@@ -25,7 +25,7 @@ function weekdayOneStr(s: string): number {
 export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
   const { semester, setting, courses: allCourses, setSetting, addCourse, updateCourse, semesters, setActiveSemester } = useAppStore();
   const courses = coursesForSemester(allCourses, semester?.id);
-  const [view, setView] = useState<'day' | 'week'>('day');
+  const [view, setView] = useState<'day' | 'week'>('week');
   const todayStr = localDateStr(new Date());
   const [schDate, setSchDate] = useState(todayStr);
   const [editCell, setEditCell] = useState<{ weekday: number; bigPeriod: number; course?: Course } | null>(null);
@@ -79,7 +79,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
           {days.map((d) => (<View key={d} style={styles.gridHeadCell}><Text style={styles.gridHeadTxt}>{WEEK_NAMES[d]}</Text></View>))}
         </View>
         {weekGrid.map((row) => (
-          <View key={row.bigPeriod} style={[styles.gridRow, { minHeight: setting.weekFontSize * 2 + 40 }]}>
+          <View key={row.bigPeriod} style={[styles.gridRow, { height: setting.weekFontSize * 3 + 80, overflow: 'hidden' }]}>
             <View style={styles.timeCol}>
               <Text style={styles.timeTxt}>{bigPeriodLabel(setting, row.bigPeriod)}</Text>
               <Text style={styles.timeSmall}>{row.start ? row.start + '-' + row.end : ''}</Text>
@@ -88,7 +88,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
               <TouchableOpacity key={cell.day} style={styles.gridCell} onPress={() => setEditCell({ weekday: cell.day, bigPeriod: row.bigPeriod, course: cell.courses[0] })}>
                 {cell.courses.map((c) => (
                   <View key={c.id} style={styles.course}>
-                    <Text style={[styles.courseName, { fontSize: setting.weekFontSize }]}>{c.name}</Text>
+                    <Text numberOfLines={2} style={[styles.courseName, { fontSize: setting.weekFontSize }]}>{c.name}</Text>
                     <Text style={styles.courseMeta}>{c.room ? c.room : ''}</Text>
                   </View>
                 ))}
