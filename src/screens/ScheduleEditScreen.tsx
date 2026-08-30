@@ -3,7 +3,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Modal,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
 import { CameraView, useCameraPermissions } from 'expo-camera';
