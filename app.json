@@ -10,10 +10,12 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.qingmae.hcoursetable"
+      "bundleIdentifier": "com.qingmae.hcoursetable",
+      "buildNumber": "2"
     },
     "android": {
       "package": "com.qingmae.hcoursetable",
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#A6E3A1",
         "foregroundImage": "./assets/android-icon-foreground.png",
