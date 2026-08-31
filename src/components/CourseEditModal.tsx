@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
 import { Course, WeeksRule } from '../types';
+import { useTheme, ThemeColors } from '../theme';
 import { allWeeks, oddWeeks, evenWeeks, toggleWeeks, invertWeeks, ruleFromWeeks } from '../domain/weeks';
 
 interface Props {
@@ -19,6 +20,8 @@ const WEEK_NAMES = ['', '周一', '周二', '周三', '周四', '周五', '周�
 const MAX_WEEK = 25;
 
 export default function CourseEditModal({ visible, semesterId, weekday, bigPeriod, course, onClose, onSave, onDelete, existingWarning }: Props) {
+  const c = useTheme();
+  const styles = useMemo(() => createStyles(c), [c]);
   const initWeeks = (() => {
     const r = course?.weeksRule;
     if (!r || r.type === 'all') return allWeeks(MAX_WEEK);
@@ -99,26 +102,26 @@ export default function CourseEditModal({ visible, semesterId, weekday, bigPerio
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (c: ThemeColors) => StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
-  box: { backgroundColor: '#fff', borderRadius: 14, padding: 16 },
+  box: { backgroundColor: c.card, borderRadius: 14, padding: 16 },
   title: { fontSize: 16, fontWeight: '700', marginBottom: 10 },
-  input: { borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 8, marginBottom: 8 },
-  weeksBtn: { backgroundColor: '#f0f0f0', borderRadius: 8, padding: 10, marginBottom: 8 },
-  weeksTxt: { color: '#333' },
+  input: { borderBottomWidth: 1, borderColor: c.line, paddingVertical: 8, marginBottom: 8 },
+  weeksBtn: { backgroundColor: c.line, borderRadius: 8, padding: 10, marginBottom: 8 },
+  weeksTxt: { color: c.text },
   weeksWrap: { maxHeight: 220, marginBottom: 8 },
   weeksGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  weekCell: { width: 38, height: 34, borderRadius: 17, backgroundColor: '#e8f0fe', alignItems: 'center', justifyContent: 'center' },
-  weekOn: { backgroundColor: '#4a90e2' },
-  weekNum: { color: '#334', fontSize: 13 },
-  weekNumOn: { color: '#fff' },
+  weekCell: { width: 38, height: 34, borderRadius: 17, backgroundColor: c.line, alignItems: 'center', justifyContent: 'center' },
+  weekOn: { backgroundColor: c.primary },
+  weekNum: { color: c.text, fontSize: 13 },
+  weekNumOn: { color: c.textOnPrimary },
   weeksActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
-  act: { color: '#4a90e2', padding: 4 },
+  act: { color: c.primary, padding: 4 },
   row: { flexDirection: 'row', gap: 10, marginTop: 8 },
   btn: { flex: 1, borderRadius: 8, padding: 12, alignItems: 'center' },
-  cancel: { backgroundColor: '#ddd' },
-  ok: { backgroundColor: '#2e7d32' },
-  del: { backgroundColor: '#e74c3c' },
-  warn: { color: '#c00', fontSize: 12, marginBottom: 8 },
-  btnTxt: { color: '#fff', fontWeight: '600' },
+  cancel: { backgroundColor: c.line },
+  ok: { backgroundColor: c.success },
+  del: { backgroundColor: c.danger },
+  warn: { color: c.danger, fontSize: 12, marginBottom: 8 },
+  btnTxt: { color: c.textOnPrimary, fontWeight: '600' },
 });
