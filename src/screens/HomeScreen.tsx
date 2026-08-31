@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, Alert } from 'react-native';
+import React, { useMemo, useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, Alert, PanResponder } from 'react-native';
 import { useAppStore } from '../store/appStore';
 import { useTheme, ThemeColors } from '../theme';
 import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
@@ -33,6 +33,23 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
   const [schDate, setSchDate] = useState(todayStr);
   const [editCell, setEditCell] = useState<{ weekday: number; bigPeriod: number; course?: Course } | null>(null);
   const [showSemModal, setShowSemModal] = useState(false);
+  const latest = useRef({ view, schDate });
+  latest.current = { view, schDate };
+  const pan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 30 && Math.abs(g.dx) > Math.abs(g.dy),
+      onPanResponderRelease: (_, g) => {
+        const v = latest.current;
+        if (v.view === 'day') {
+          if (g.dx < -30) setSchDate(addDaysToDate(v.schDate, 1));
+          else if (g.dx > 30) setSchDate(addDaysToDate(v.schDate, -1));
+        } else {
+          if (g.dx < -30) setSchDate(addDaysToDate(v.schDate, 7));
+          else if (g.dx > 30) setSchDate(addDaysToDate(v.schDate, -7));
+        }
+      },
+    }),
+  ).current;
 
   const rawW = semester ? currentWeek(semester, schDate) : 0;
   const schWeek = Number.isFinite(rawW) ? rawW : 0;
@@ -138,12 +155,6 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
         <TouchableOpacity onPress={() => setView('day')} style={[styles.togBtn, view === 'day' && styles.togActive]}><Text>当日</Text></TouchableOpacity>
         <TouchableOpacity onPress={() => setView('week')} style={[styles.togBtn, view === 'week' && styles.togActive]}><Text>一周</Text></TouchableOpacity>
       </View>
-      <View style={styles.weekNav}>
-        <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, -7))}><Text style={styles.nav2}>‹ 上一周</Text></TouchableOpacity>
-        <Text style={styles.weekLabel}>{inSem ? '第 ' + schWeek + ' 周' : weekText}</Text>
-        <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, 7))}><Text style={styles.nav2}>下一周 ›</Text></TouchableOpacity>
-      </View>
-
       <View style={styles.fontRow}>
         <Text style={styles.lbl}>当日字体</Text>
         <View style={styles.stepper}>
@@ -191,7 +202,15 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
       ) : (
         <>
           <Text style={styles.sectionTitle}>课程表（点击格子可添加/编辑课程）</Text>
-          {view === 'day' ? renderDay() : renderWeek()}
+          <View {...pan.panHandlers}>
+            {view === 'day' ? renderDay() : renderWeek()}
+          </View>
+          <View style={styles.weekNav}>
+            <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, -7))}><Text style={styles.nav2}>‹ 上一周</Text></TouchableOpacity>
+            <Text style={styles.weekLabel}>{inSem ? '第 ' + schWeek + ' 周' : weekText}</Text>
+            <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, 7))}><Text style={styles.nav2}>下一周 ›</Text></TouchableOpacity>
+          </View>
+          <Text style={styles.swipeHint}>左右滑动切换（当日滑日 / 一周滑周）</Text>
           {schDate !== todayStr ? (
             <TouchableOpacity style={styles.jumpBtn} onPress={() => setSchDate(todayStr)}><Text style={styles.jumpTxt}>回到今天</Text></TouchableOpacity>
           ) : null}
@@ -271,6 +290,7 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   weekNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   nav2: { color: c.primary, fontSize: 14, paddingHorizontal: 6 },
   weekLabel: { fontWeight: '700' },
+  swipeHint: { fontSize: 11, color: c.sub, textAlign: 'center', marginBottom: 6 },
   fontRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
   stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: c.line, borderRadius: 8, paddingHorizontal: 6 },
   lbl: { fontSize: 13 },
