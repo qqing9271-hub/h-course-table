@@ -3,6 +3,8 @@
     "name": "H课程表",
     "slug": "h-course-table",
     "version": "1.0.0",
+    "runtimeVersion": { "policy": "sdkVersion" },
+    "updates": { "url": "https://u.expo.dev/325cbbea-31e4-43da-bd7e-8bf28f7a33a9" },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",

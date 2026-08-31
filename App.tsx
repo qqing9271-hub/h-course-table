@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import * as Updates from 'expo-updates';
 import HomeScreen from './src/screens/HomeScreen';
 import NotesScreen from './src/screens/NotesScreen';
 import ScheduleEditScreen from './src/screens/ScheduleEditScreen';
@@ -17,6 +18,22 @@ const TABS: { key: Tab; label: string }[] = [
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('home');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const u = await Updates.checkForUpdateAsync();
+        if (u.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          Alert.alert('发现新版本', '已下载新版本，点击“确定”重启应用', [
+            { text: '确定', onPress: () => Updates.reloadAsync() },
+          ]);
+        }
+      } catch (e) {
+        // 开发环境或网络异常时静默
+      }
+    })();
+  }, []);
   return (
     <View style={styles.root}>
       <StatusBar style="auto" />
