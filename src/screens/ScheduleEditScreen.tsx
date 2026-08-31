@@ -128,9 +128,12 @@ export default function ScheduleEditScreen() {
       <View style={styles.card}>
         <Text style={styles.cap}>节数设置</Text>
         <View style={styles.row}>
-          <Text style={styles.lbl}>一天小节数：{setting.periodsPerDay}</Text>
-          <TouchableOpacity onPress={() => setSetting({ ...setting, periodsPerDay: Math.max(2, setting.periodsPerDay - 2) })}><Text style={styles.nav}>-</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => setSetting({ ...setting, periodsPerDay: setting.periodsPerDay + 2 })}><Text style={styles.nav}>+</Text></TouchableOpacity>
+          <Text style={styles.lbl}>一天小节数</Text>
+          <View style={styles.stepper}>
+            <TouchableOpacity onPress={() => setSetting({ ...setting, periodsPerDay: Math.max(2, setting.periodsPerDay - 2) })}><Text style={styles.nav}>－</Text></TouchableOpacity>
+            <Text style={styles.lbl}>{setting.periodsPerDay}</Text>
+            <TouchableOpacity onPress={() => setSetting({ ...setting, periodsPerDay: setting.periodsPerDay + 2 })}><Text style={styles.nav}>＋</Text></TouchableOpacity>
+          </View>
         </View>
         <View style={styles.row}>
           <Text style={styles.lbl}>合并两节（{setting.bigPeriodSize}）</Text>
@@ -221,6 +224,7 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 },
   lbl: { fontSize: 14 },
   nav: { fontSize: 22, paddingHorizontal: 10, color: c.primary },
+  stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: c.line, borderRadius: 8, paddingHorizontal: 6 },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
   timeInput: { flex: 1, borderWidth: 1, borderColor: c.line, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 6 },
   addBtn: { backgroundColor: c.primary, borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 6, flex: 1, marginRight: 6 },

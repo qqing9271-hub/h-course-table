@@ -126,10 +126,13 @@ export default function SettingsScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cap}>课表设置</Text>
-        <Text style={styles.lbl}>一天节数：{setting.periodsPerDay}</Text>
         <View style={styles.row}>
-          <TouchableOpacity onPress={() => setSetting({ ...setting, periodsPerDay: Math.max(1, setting.periodsPerDay - 1) })}><Text style={styles.nav}>-</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => setSetting({ ...setting, periodsPerDay: setting.periodsPerDay + 1 })}><Text style={styles.nav}>+</Text></TouchableOpacity>
+          <Text style={styles.lbl}>一天节数</Text>
+          <View style={styles.stepper}>
+            <TouchableOpacity onPress={() => setSetting({ ...setting, periodsPerDay: Math.max(2, setting.periodsPerDay - 2) })}><Text style={styles.nav}>－</Text></TouchableOpacity>
+            <Text style={styles.lbl}>{setting.periodsPerDay}</Text>
+            <TouchableOpacity onPress={() => setSetting({ ...setting, periodsPerDay: setting.periodsPerDay + 2 })}><Text style={styles.nav}>＋</Text></TouchableOpacity>
+          </View>
         </View>
         <View style={styles.row}>
           <Text style={styles.lbl}>合并两节（{setting.bigPeriodSize}）</Text>
@@ -167,6 +170,7 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 6 },
   lbl: { fontSize: 14, marginBottom: 6 },
   nav: { fontSize: 24, paddingHorizontal: 10, color: c.primary },
+  stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: c.line, borderRadius: 8, paddingHorizontal: 6 },
   btn: { backgroundColor: c.primary, borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 6 },
   btnTxt: { color: c.textOnPrimary, fontWeight: '600' },
   msg: { color: c.success, marginTop: 8 },

@@ -146,13 +146,17 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
 
       <View style={styles.fontRow}>
         <Text style={styles.lbl}>当日字体</Text>
-        <TouchableOpacity onPress={() => setSetting({ ...setting, dayFontSize: Math.max(12, setting.dayFontSize - 2) })}><Text style={styles.nav2}>－</Text></TouchableOpacity>
-        <Text style={styles.lbl}>{setting.dayFontSize}</Text>
-        <TouchableOpacity onPress={() => setSetting({ ...setting, dayFontSize: Math.min(20, setting.dayFontSize + 2) })}><Text style={styles.nav2}>＋</Text></TouchableOpacity>
-        <Text style={styles.lbl}>  一周字体</Text>
-        <TouchableOpacity onPress={() => setSetting({ ...setting, weekFontSize: Math.max(12, setting.weekFontSize - 2) })}><Text style={styles.nav2}>－</Text></TouchableOpacity>
-        <Text style={styles.lbl}>{setting.weekFontSize}</Text>
-        <TouchableOpacity onPress={() => setSetting({ ...setting, weekFontSize: Math.min(20, setting.weekFontSize + 2) })}><Text style={styles.nav2}>＋</Text></TouchableOpacity>
+        <View style={styles.stepper}>
+          <TouchableOpacity onPress={() => setSetting({ ...setting, dayFontSize: Math.max(12, setting.dayFontSize - 2) })}><Text style={styles.nav2}>－</Text></TouchableOpacity>
+          <Text style={styles.lbl}>{setting.dayFontSize}</Text>
+          <TouchableOpacity onPress={() => setSetting({ ...setting, dayFontSize: Math.min(20, setting.dayFontSize + 2) })}><Text style={styles.nav2}>＋</Text></TouchableOpacity>
+        </View>
+        <Text style={styles.lbl}>一周字体</Text>
+        <View style={styles.stepper}>
+          <TouchableOpacity onPress={() => setSetting({ ...setting, weekFontSize: Math.max(12, setting.weekFontSize - 2) })}><Text style={styles.nav2}>－</Text></TouchableOpacity>
+          <Text style={styles.lbl}>{setting.weekFontSize}</Text>
+          <TouchableOpacity onPress={() => setSetting({ ...setting, weekFontSize: Math.min(20, setting.weekFontSize + 2) })}><Text style={styles.nav2}>＋</Text></TouchableOpacity>
+        </View>
       </View>
 
       {!semester ? (
@@ -267,7 +271,8 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   weekNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   nav2: { color: c.primary, fontSize: 14, paddingHorizontal: 6 },
   weekLabel: { fontWeight: '700' },
-  fontRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
+  fontRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
+  stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: c.line, borderRadius: 8, paddingHorizontal: 6 },
   lbl: { fontSize: 13 },
   noticeCard: { backgroundColor: c.card, borderRadius: 10, padding: 16, marginBottom: 8, alignItems: 'center' },
   noticeTxt: { fontSize: 14, color: c.sub, marginBottom: 8, textAlign: 'center' },

@@ -25,6 +25,9 @@ export default function CalendarModal({ visible, value, onSelect, onClose }: Pro
     const d = new Date(ym.y, ym.m + delta, 1);
     setYm({ y: d.getFullYear(), m: d.getMonth() });
   }
+  function shiftYear(delta: number) {
+    setYm({ y: ym.y + delta, m: ym.m });
+  }
   function pick(d: number) {
     onSelect(ym.y + '-' + pad(ym.m + 1) + '-' + pad(d));
   }
@@ -34,9 +37,13 @@ export default function CalendarModal({ visible, value, onSelect, onClose }: Pro
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 24 }}>
         <View style={styles.box}>
           <View style={styles.head}>
-            <TouchableOpacity onPress={() => shift(-1)}><Text style={styles.nav}>‹</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => shiftYear(-1)}><Text style={styles.nav}>« 去年</Text></TouchableOpacity>
             <Text style={styles.title}>{ym.y + ' 年 ' + (ym.m + 1) + ' 月'}</Text>
-            <TouchableOpacity onPress={() => shift(1)}><Text style={styles.nav}>›</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => shiftYear(1)}><Text style={styles.nav}>明年 »</Text></TouchableOpacity>
+          </View>
+          <View style={styles.head}>
+            <TouchableOpacity onPress={() => shift(-1)}><Text style={styles.nav}>‹ 上月</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => shift(1)}><Text style={styles.nav}>下月 ›</Text></TouchableOpacity>
           </View>
           <View style={styles.weekRow}>
             {WEEK.map((w) => (<Text key={w} style={styles.weekTxt}>{w}</Text>))}
