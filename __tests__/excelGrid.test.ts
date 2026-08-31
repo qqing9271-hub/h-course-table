@@ -21,3 +21,23 @@ test('Excel 网格解析: 星期列 × 大节行 → 课程', () => {
   const sat = courses.find((c) => c.name === '党史' && c.weekday === 6)!;
   expect(sat.bigPeriod).toBe(3);
 });
+test('兼容“第1-2节”节次标签的课表', () => {
+  const grid = [
+    ['课表', '', '', '', '', '', '', ''],
+    ['学年学期：2026-2027-1', '', '', '', '', '', '', ''],
+    ['', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'],
+    ['第1-2节', '高数\n张老师\n1-18([周])[01-02节]\n历史楼206', '', '', '', '', '', ''],
+    ['第3-4节', '', '英语\n李老师\n2,4,6([周])[03-04节]\n二教301', '', '', '', '', ''],
+    ['第9-10节', '', '', '', '体育\n王老师\n1-9([周])[09-10节]\n操场', '', '', ''],
+  ];
+  const { courses } = parseScheduleGrid(grid);
+  expect(courses).toHaveLength(3);
+  const g = courses.find((c) => c.name === '高数')!;
+  expect(g.bigPeriod).toBe(1);
+  expect(g.room).toBe('历史楼206');
+  const y = courses.find((c) => c.name === '英语')!;
+  expect(y.bigPeriod).toBe(2);
+  expect(y.weekday).toBe(2);
+  const t = courses.find((c) => c.name === '体育')!;
+  expect(t.bigPeriod).toBe(5);
+});

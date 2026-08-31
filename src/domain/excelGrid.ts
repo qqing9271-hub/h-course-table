@@ -53,7 +53,11 @@ export function parseScheduleGrid(grid: string[][]): { courses: Course[]; semest
   for (let r = 0; r < grid.length; r++) {
     const row = (grid[r] || []).map(String);
     const label = noSpace(row[0] || '');
-    const bigPeriod = PERIOD_LABELS[label];
+    let bigPeriod = PERIOD_LABELS[label];
+    if (!bigPeriod) {
+      const m = label.match(/^第\s*(\d+)\s*[-—–~]\s*(\d+)\s*节$/);
+      if (m) bigPeriod = Math.ceil(parseInt(m[1], 10) / 2);
+    }
     if (!bigPeriod) continue;
     for (let c = 0; c < row.length; c++) {
       const day = dayCol[c];
