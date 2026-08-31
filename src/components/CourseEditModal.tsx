@@ -5,18 +5,20 @@ import { allWeeks, oddWeeks, evenWeeks, toggleWeeks, invertWeeks, ruleFromWeeks 
 
 interface Props {
   visible: boolean;
+  existingWarning?: string;
   semesterId?: string;
   weekday: number;
   bigPeriod: number;
   course?: Course;
   onClose: () => void;
   onSave: (c: Course) => void;
+  onDelete?: (id: string) => void;
 }
 
 const WEEK_NAMES = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 const MAX_WEEK = 25;
 
-export default function CourseEditModal({ visible, semesterId, weekday, bigPeriod, course, onClose, onSave }: Props) {
+export default function CourseEditModal({ visible, semesterId, weekday, bigPeriod, course, onClose, onSave, onDelete, existingWarning }: Props) {
   const initWeeks = (() => {
     const r = course?.weeksRule;
     if (!r || r.type === 'all') return allWeeks(MAX_WEEK);
@@ -52,6 +54,7 @@ export default function CourseEditModal({ visible, semesterId, weekday, bigPerio
       <View style={styles.backdrop}>
         <View style={styles.box}>
           <Text style={styles.title}>{course ? '编辑课程' : '添加课程'}（{WEEK_NAMES[weekday]} 第 {bigPeriod} 大节）</Text>
+          {existingWarning ? <Text style={styles.warn}>{existingWarning}</Text> : null}
           <TextInput style={styles.input} placeholder="课程全称" value={name} onChangeText={setName} />
           <TextInput style={styles.input} placeholder="教师" value={teacher} onChangeText={setTeacher} />
           <TextInput style={styles.input} placeholder="教室" value={room} onChangeText={setRoom} />
@@ -84,6 +87,9 @@ export default function CourseEditModal({ visible, semesterId, weekday, bigPerio
           ) : null}
 
           <View style={styles.row}>
+            {course && onDelete ? (
+              <TouchableOpacity style={[styles.btn, styles.del]} onPress={() => onDelete(course.id)}><Text style={styles.btnTxt}>删除</Text></TouchableOpacity>
+            ) : null}
             <TouchableOpacity style={[styles.btn, styles.cancel]} onPress={onClose}><Text style={styles.btnTxt}>取消</Text></TouchableOpacity>
             <TouchableOpacity style={[styles.btn, styles.ok]} onPress={save}><Text style={styles.btnTxt}>确定</Text></TouchableOpacity>
           </View>
@@ -112,5 +118,7 @@ const styles = StyleSheet.create({
   btn: { flex: 1, borderRadius: 8, padding: 12, alignItems: 'center' },
   cancel: { backgroundColor: '#ddd' },
   ok: { backgroundColor: '#2e7d32' },
+  del: { backgroundColor: '#e74c3c' },
+  warn: { color: '#c00', fontSize: 12, marginBottom: 8 },
   btnTxt: { color: '#fff', fontWeight: '600' },
 });

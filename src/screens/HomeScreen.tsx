@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, Alert } from 'react-native';
 import { useAppStore } from '../store/appStore';
 import { useTheme, ThemeColors } from '../theme';
 import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
@@ -26,7 +26,7 @@ function weekdayOneStr(s: string): number {
 export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
   const c = useTheme();
   const styles = useMemo(() => createStyles(c), [c]);
-  const { semester, setting, courses: allCourses, setSetting, addCourse, updateCourse, semesters, setActiveSemester } = useAppStore();
+  const { semester, setting, courses: allCourses, setSetting, addCourse, updateCourse, removeCourse, semesters, setActiveSemester } = useAppStore();
   const courses = coursesForSemester(allCourses, semester?.id);
   const [view, setView] = useState<'day' | 'week'>('week');
   const todayStr = localDateStr(new Date());
@@ -219,8 +219,20 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
           weekday={editCell.weekday}
           bigPeriod={editCell.bigPeriod}
           course={editCell.course}
+          existingWarning={
+            editCell.course || !editCell ? undefined : (
+              (() => {
+                const exist = courses.find((c) => c.weekday === editCell.weekday && c.bigPeriod === editCell.bigPeriod);
+                return exist ? '⚠️ 该时间段已有《' + exist.name + '》，保存会新增一门，请确认是否需要' : undefined;
+              })()
+            )
+          }
           onClose={() => setEditCell(null)}
-          onSave={(c) => { if (editCell.course) updateCourse(c); else addCourse(c); setEditCell(null); }}
+          onSave={(c) => {
+            if (editCell.course) { updateCourse(c); } else { addCourse(c); Alert.alert('添加成功', '已添加《' + c.name + '》，请到对应日期/格子查看'); }
+            setEditCell(null);
+          }}
+          onDelete={(id) => { removeCourse(id); setEditCell(null); Alert.alert('已删除'); }}
         />
       ) : null}
     </ScrollView>
