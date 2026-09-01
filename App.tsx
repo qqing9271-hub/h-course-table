@@ -25,9 +25,8 @@ export default function App() {
         const u = await Updates.checkForUpdateAsync();
         if (u.isAvailable) {
           await Updates.fetchUpdateAsync();
-          Alert.alert('发现新版本', '已下载新版本，点击“确定”重启应用', [
-            { text: '确定', onPress: () => Updates.reloadAsync() },
-          ]);
+          Alert.alert('发现新版本', '新版本已下载，应用将自动重启更新');
+          setTimeout(() => Updates.reloadAsync(), 1200);
         }
       } catch (e) {
         // 开发环境或网络异常时静默

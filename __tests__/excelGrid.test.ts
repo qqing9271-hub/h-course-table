@@ -41,3 +41,23 @@ test('兼容“第1-2节”节次标签的课表', () => {
   const t = courses.find((c) => c.name === '体育')!;
   expect(t.bigPeriod).toBe(5);
 });
+test('兼容斜杠分隔+一格多门课(\r\n)格式', () => {
+  const grid = [
+    ['2026-2027学1学期', '2026-2027学1学期', '', '2024通信工程01课表', '', '', '', '', ''],
+    ['节次', '', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'],
+    ['第1-2节', '', '通信原理/(1-2节)1-16节/新华校区 3219/周老师/通信原理-0003/29', '', '', '', '', '', ''],
+    ['第3-4节', '', '', '嵌入式系统及应用/(3-4节)1-16节/宁大校区 1513/李老师/嵌入式系统-0001/29', '', '', '', '', ''],
+    ['第5-6节', '', '人工智能导论/(5-6节)1-16节/宁大校区 1617/王老师/人工智能导论-0003/52\r\n电力电子电路/(5-6节)5-11节/宁大校区 1613/赵老师/电力电子电路-0003/29', '', '', '', '', '', ''],
+  ];
+  const { courses, semesterName } = parseScheduleGrid(grid);
+  expect(semesterName).toBe('2026-2027');
+  const c1 = courses.find((c) => c.name === '通信原理')!;
+  expect(c1.weekday).toBe(1);
+  expect(c1.bigPeriod).toBe(1);
+  expect(c1.room).toContain('3219');
+  expect(c1.teacher).toBe('周老师');
+  const c2 = courses.find((c) => c.name === '嵌入式系统及应用')!;
+  expect(c2.weekday).toBe(2);
+  const multi = courses.filter((c) => c.name === '人工智能导论' || c.name === '电力电子电路');
+  expect(multi.length).toBe(2);
+});
