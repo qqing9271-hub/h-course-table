@@ -61,3 +61,25 @@ test('兼容斜杠分隔+一格多门课(\r\n)格式', () => {
   const multi = courses.filter((c) => c.name === '人工智能导论' || c.name === '电力电子电路');
   expect(multi.length).toBe(2);
 });
+test('兼容“上午/下午/晚上+一二三四五”节次行', () => {
+  const grid = [
+    ['2026-2027年第1学期', '2026-2027年第1学期', '', '2024通信工程01课表', '', '', '', '', ''],
+    ['节次', '', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'],
+    ['上午', '一', '通信原理/(1-2节)1-16周/长安校区 3219/周老师/通信原理-0003/29', '', '', '', '', '', ''],
+    ['上午', '二', '', '数字信号处理/(3-4节)1-16周/长安校区 3219/李老师/数字信号处理-0003/29', '', '', '', '', ''],
+    ['下午', '三', '人工智能导论/(5-6节)1-16周/长安校区 1617/王老师/人工智能导论-0003/52', '', '', '', '', '', ''],
+    ['下午', '四', '', '', '通信原理实验/(7-8节)13-16周/长安校区 3120/刘老师/通信原理实验-0003/29', '', '', '', ''],
+  ];
+  const { courses } = parseScheduleGrid(grid);
+  const c1 = courses.find((c) => c.name === '通信原理')!;
+  expect(c1).toBeDefined();
+  expect(c1.bigPeriod).toBe(1);
+  expect(c1.weekday).toBe(1);
+  const c2 = courses.find((c) => c.name === '数字信号处理')!;
+  expect(c2.bigPeriod).toBe(2);
+  const c3 = courses.find((c) => c.name === '人工智能导论')!;
+  expect(c3.bigPeriod).toBe(3);
+  const c4 = courses.find((c) => c.name === '通信原理实验')!;
+  expect(c4.bigPeriod).toBe(4);
+  expect(courses.length).toBe(4);
+});

@@ -79,6 +79,14 @@ function parseCellCourses(raw: string, weekday: number, bigPeriod: number): Cour
   return out;
 }
 
+function cnPeriod(s: string): number | undefined {
+  const map: Record<string, number> = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6 };
+  if (map[s]) return map[s];
+  const n = parseInt(s, 10);
+  if (n >= 1 && n <= 6) return n;
+  return undefined;
+}
+
 export function parseScheduleGrid(grid: string[][]): { courses: Course[]; semesterName?: string } {
   const courses: Course[] = [];
   let semesterName: string | undefined;
@@ -106,6 +114,9 @@ export function parseScheduleGrid(grid: string[][]): { courses: Course[]; semest
     if (!bigPeriod) {
       const m = label.match(/^第\s*(\d+)\s*[-—–~]\s*(\d+)\s*节$/);
       if (m) bigPeriod = Math.ceil(parseInt(m[1], 10) / 2);
+    }
+    if (!bigPeriod && !dayCol[1]) {
+      bigPeriod = cnPeriod(noSpace(row[1] || '')) || 0;
     }
     if (!bigPeriod) continue;
     for (let c = 0; c < row.length; c++) {
