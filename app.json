@@ -4,7 +4,7 @@
     "slug": "h-course-table",
     "version": "1.0.0",
     "runtimeVersion": { "policy": "sdkVersion" },
-    "updates": { "url": "https://u.expo.dev/325cbbea-31e4-43da-bd7e-8bf28f7a33a9" },
+    "updates": { "url": "https://u.expo.dev/325cbbea-31e4-43da-bd7e-8bf28f7a33a9", "channel": "production", "checkAutomatically": "ON_LOAD", "fallbackToCacheTimeout": 0 },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
