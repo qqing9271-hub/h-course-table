@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useAppStore } from '../store/appStore';
+import { APP_VERSION } from '../constants';
 import { useTheme, ThemeColors } from '../theme';
 import { createBackupData, restoreFromBackup } from '../domain/backup';
 import { currentWeek } from '../domain/semester';
@@ -150,7 +151,7 @@ export default function SettingsScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cap}>关于</Text>
-        <Text style={styles.lbl}>H课程表 v1.0.0</Text>
+        <Text style={styles.lbl}>{'H课程表 v' + APP_VERSION}</Text>
         <Text style={styles.lbl}>本地存储，无需账号；可在 GitHub 查看源码并发布分享。</Text>
       </View>
       <CalendarModal visible={showCal} value={sStart} onSelect={(d) => { setSStart(d); setShowCal(false); }} onClose={() => setShowCal(false)} />
