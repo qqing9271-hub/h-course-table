@@ -66,15 +66,15 @@ export default function CalendarModal({ visible, value, onSelect, onClose }: Pro
 }
 
 const createStyles = (c: ThemeColors) => StyleSheet.create({
-  box: { backgroundColor: c.card, borderRadius: 14, padding: 16 },
-  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  box: { color: c.text, backgroundColor: c.card, borderRadius: 14, padding: 16 },
+  head: { color: c.text, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   nav: { fontSize: 26, color: c.primary, paddingHorizontal: 10 },
-  title: { fontSize: 16, fontWeight: '700' },
-  weekRow: { flexDirection: 'row', marginBottom: 6 },
+  title: { color: c.text, fontSize: 16, fontWeight: '700' },
+  weekRow: { color: c.text, flexDirection: 'row', marginBottom: 6 },
   weekTxt: { flex: 1, textAlign: 'center', color: c.sub },
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  cell: { width: '14.28%', height: 40, alignItems: 'center', justifyContent: 'center' },
-  dayTxt: { fontSize: 15 },
-  close: { marginTop: 12, backgroundColor: c.line, borderRadius: 8, padding: 10, alignItems: 'center' },
+  grid: { color: c.text, flexDirection: 'row', flexWrap: 'wrap' },
+  cell: { color: c.text, width: '14.28%', height: 40, alignItems: 'center', justifyContent: 'center' },
+  dayTxt: { color: c.text, fontSize: 15 },
+  close: { color: c.text, marginTop: 12, backgroundColor: c.line, borderRadius: 8, padding: 10, alignItems: 'center' },
   closeTxt: { color: c.text },
 });

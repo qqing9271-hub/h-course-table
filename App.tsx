@@ -57,16 +57,16 @@ export default function App() {
 }
 
 const createStyles = (c: ThemeColors) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: c.bg },
+  root: { color: c.text, flex: 1, backgroundColor: c.bg },
   tabbar: {
-    flexDirection: 'row',
+    color: c.text, flexDirection: 'row',
     borderTopWidth: 1,
     borderColor: c.line,
     backgroundColor: '#fff',
     paddingTop: 8,
     paddingBottom: 12,
   },
-  tab: { flex: 1, alignItems: 'center' },
+  tab: { color: c.text, flex: 1, alignItems: 'center' },
   tabTxt: { color: c.sub, fontSize: 13 },
   tabActive: { color: c.primary, fontWeight: '700' },
 });

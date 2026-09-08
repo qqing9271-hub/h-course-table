@@ -2,7 +2,7 @@
   "expo": {
     "name": "H课程表",
     "slug": "h-course-table",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "runtimeVersion": { "policy": "sdkVersion" },
     "updates": { "url": "https://u.expo.dev/325cbbea-31e4-43da-bd7e-8bf28f7a33a9", "channel": "production", "checkAutomatically": "ON_LOAD", "fallbackToCacheTimeout": 0 },
     "orientation": "portrait",
@@ -11,11 +11,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.qingmae.hcoursetable",
-      "buildNumber": "2"
+      "buildNumber": "3"
     },
     "android": {
       "package": "com.qingmae.hcoursetable",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "backgroundColor": "#A6E3A1",
         "foregroundImage": "./assets/android-icon-foreground.png",

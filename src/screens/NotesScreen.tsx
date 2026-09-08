@@ -60,15 +60,15 @@ export default function NotesScreen() {
 }
 
 const createStyles = (c: ThemeColors) => StyleSheet.create({
-  container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: c.bg },
-  head: { fontSize: 22, fontWeight: '700', marginBottom: 10 },
-  inputBox: { backgroundColor: c.card, borderRadius: 10, padding: 10, marginBottom: 10 },
-  input: { borderBottomWidth: 1, borderColor: c.line, paddingVertical: 6, marginBottom: 6 },
-  addBtn: { backgroundColor: c.primary, borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 4 },
+  container: { color: c.text, flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: c.bg },
+  head: { color: c.text, fontSize: 22, fontWeight: '700', marginBottom: 10 },
+  inputBox: { color: c.text, backgroundColor: c.card, borderRadius: 10, padding: 10, marginBottom: 10 },
+  input: { color: c.text, borderBottomWidth: 1, borderColor: c.line, paddingVertical: 6, marginBottom: 6 },
+  addBtn: { color: c.text, backgroundColor: c.primary, borderRadius: 8, padding: 10, alignItems: 'center', marginTop: 4 },
   addTxt: { color: c.textOnPrimary, fontWeight: '600' },
-  card: { backgroundColor: c.card, borderRadius: 10, padding: 10, marginBottom: 8 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  title: { fontWeight: '700' },
+  card: { color: c.text, backgroundColor: c.card, borderRadius: 10, padding: 10, marginBottom: 8 },
+  row: { color: c.text, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  title: { color: c.text, fontWeight: '700' },
   date: { color: c.sub, fontSize: 12 },
   content: { color: c.text, marginTop: 4 },
   del: { color: c.danger, marginTop: 6 },
