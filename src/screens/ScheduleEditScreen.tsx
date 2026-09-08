@@ -137,11 +137,11 @@ export default function ScheduleEditScreen() {
         </View>
         <View style={styles.row}>
           <Text style={styles.lbl}>合并两节（{setting.bigPeriodSize}）</Text>
-          <TouchableOpacity onPress={() => setSetting({ ...setting, bigPeriodSize: setting.bigPeriodSize === 2 ? 1 : 2 })}><Text>{setting.bigPeriodSize === 2 ? '开' : '关'}</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => setSetting({ ...setting, bigPeriodSize: setting.bigPeriodSize === 2 ? 1 : 2 })}><Text style={styles.plain}>{setting.bigPeriodSize === 2 ? '开' : '关'}</Text></TouchableOpacity>
         </View>
         <View style={styles.row}>
           <Text style={styles.lbl}>显示周六日</Text>
-          <TouchableOpacity onPress={() => setSetting({ ...setting, showWeekend: !setting.showWeekend })}><Text>{setting.showWeekend ? '开' : '关'}</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => setSetting({ ...setting, showWeekend: !setting.showWeekend })}><Text style={styles.plain}>{setting.showWeekend ? '开' : '关'}</Text></TouchableOpacity>
         </View>
       </View>
 
@@ -157,9 +157,9 @@ export default function ScheduleEditScreen() {
               return (
                 <View key={sm} style={styles.timeRow}>
                   <Text style={styles.lbl}>{sm}</Text>
-                  <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.timeInput} placeholder="开始" value={pt.start} onChangeText={(v) => updatePeriodTime(sm, 'start', v)} />
+                  <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.timeInput} placeholder="开始" value={pt.start} onChangeText={(v) => updatePeriodTime(sm, 'start', v)} />
                   <Text style={styles.lbl}>-</Text>
-                  <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.timeInput} placeholder="结束" value={pt.end} onChangeText={(v) => updatePeriodTime(sm, 'end', v)} />
+                  <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.timeInput} placeholder="结束" value={pt.end} onChangeText={(v) => updatePeriodTime(sm, 'end', v)} />
                 </View>
               );
             })}
@@ -200,11 +200,11 @@ export default function ScheduleEditScreen() {
             <Text style={styles.qrTitle}>导入到哪个学期？</Text>
             {semesters.map((s) => (
               <TouchableOpacity key={s.id} style={styles.semChoice} onPress={() => { if (pickSem) doImport(pickSem.courses, s.id, pickSem.name); }}>
-                <Text>{s.name}{s.id === semester?.id ? '（当前）' : ''}</Text>
+                <Text style={styles.plain}>{s.name}{s.id === semester?.id ? '（当前）' : ''}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity style={styles.semChoice} onPress={() => { if (pickSem) doImport(pickSem.courses, null, pickSem.name); }}>
-              <Text>＋ 新建学期（用课表学期名）</Text>
+              <Text style={styles.plain}>＋ 新建学期（用课表学期名）</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.addBtn} onPress={() => setPickSem(null)}><Text style={styles.addTxt}>取消</Text></TouchableOpacity>
           </View>
@@ -215,6 +215,7 @@ export default function ScheduleEditScreen() {
 }
 
 const createStyles = (c: ThemeColors) => StyleSheet.create({
+  plain: { color: c.text },
   container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: c.bg },
   head: { fontSize: 22, fontWeight: '700', marginBottom: 10 },
   msg: { color: c.success, marginBottom: 8 },

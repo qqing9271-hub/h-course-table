@@ -152,8 +152,8 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
       </View>
 
       <View style={styles.toggle}>
-        <TouchableOpacity onPress={() => setView('day')} style={[styles.togBtn, view === 'day' && styles.togActive]}><Text>当日</Text></TouchableOpacity>
-        <TouchableOpacity onPress={() => setView('week')} style={[styles.togBtn, view === 'week' && styles.togActive]}><Text>一周</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => setView('day')} style={[styles.togBtn, view === 'day' && styles.togActive]}><Text style={styles.plain}>当日</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => setView('week')} style={[styles.togBtn, view === 'week' && styles.togActive]}><Text style={styles.plain}>一周</Text></TouchableOpacity>
       </View>
       <View style={styles.fontRow}>
         <Text style={styles.lbl}>当日字体</Text>
@@ -226,11 +226,11 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
             <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 10 }}>选择要在首页显示的学期</Text>
             {semesters.map((s) => (
               <TouchableOpacity key={s.id} style={{ paddingVertical: 10, borderBottomWidth: 1, borderColor: c.line }} onPress={() => { setActiveSemester(s.id); setShowSemModal(false); setSchDate(todayStr); }}>
-                <Text>{s.name}{semester && semester.id === s.id ? '  [当前]' : ''}</Text>
+                <Text style={styles.plain}>{s.name}{semester && semester.id === s.id ? '  [当前]' : ''}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity style={{ marginTop: 12, backgroundColor: c.line, borderRadius: 8, padding: 10, alignItems: 'center' }} onPress={() => setShowSemModal(false)}>
-              <Text>取消</Text>
+              <Text style={styles.plain}>取消</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -263,6 +263,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
 }
 
 const createStyles = (c: ThemeColors) => StyleSheet.create({
+  plain: { color: c.text },
   container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: c.bg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
   headerLeft: { flex: 1 },

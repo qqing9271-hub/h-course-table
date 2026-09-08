@@ -11,8 +11,8 @@ export const light: ThemeColors = {
 };
 
 export const dark: ThemeColors = {
-  bg: '#0f0f0f', card: '#1a1a1a', cardBg: '#222222', text: '#ffffff', sub: '#c7c7c7',
-  line: '#333333', primary: '#6fb1ff', danger: '#ff6b6b', success: '#66bb6a', textOnPrimary: '#ffffff',
+  bg: '#0a0a0a', card: '#161616', cardBg: '#1e1e1e', text: '#ffffff', sub: '#d9d9d9',
+  line: '#3a3a3a', primary: '#7fb8ff', danger: '#ff6b6b', success: '#6fce7e', textOnPrimary: '#ffffff',
 };
 
 export function useTheme(): ThemeColors {

@@ -37,12 +37,12 @@ function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan, remo
     <View style={styles.card}>
       {editing ? (
         <>
-          <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.editInput} value={title} onChangeText={setTitle} placeholder="标题" />
-          <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.editInput} value={content} onChangeText={setContent} placeholder="内容" />
-          <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.editInput} value={time} onChangeText={setTime} placeholder="计划时间（可选）" />
+          <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.editInput} value={title} onChangeText={setTitle} placeholder="标题" />
+          <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.editInput} value={content} onChangeText={setContent} placeholder="内容" />
+          <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.editInput} value={time} onChangeText={setTime} placeholder="计划时间（可选）" />
           <View style={styles.row}>
-            <TouchableOpacity style={styles.smallBtn} onPress={() => { updatePlan(p.id, { title, content, time }); setEditing(false); }}><Text>保存</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.smallBtn} onPress={() => setEditing(false)}><Text>取消</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.smallBtn} onPress={() => { updatePlan(p.id, { title, content, time }); setEditing(false); }}><Text style={styles.plain}>保存</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.smallBtn} onPress={() => setEditing(false)}><Text style={styles.plain}>取消</Text></TouchableOpacity>
           </View>
         </>
       ) : (
@@ -66,7 +66,7 @@ function PlanCard({ p, movePlanAction, completePlan, addReview, updatePlan, remo
             </TouchableOpacity>
           </View>
           {p.board === 'done' ? (
-            <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.review} placeholder="写复盘..." defaultValue={p.review ?? ''} onEndEditing={(e) => addReview(p.id, e.nativeEvent.text)} />
+            <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.review} placeholder="写复盘..." defaultValue={p.review ?? ''} onEndEditing={(e) => addReview(p.id, e.nativeEvent.text)} />
           ) : null}
           <Text style={styles.cardDate}>{p.date}{p.time ? '  ' + p.time : ''}</Text>
         </>
@@ -102,9 +102,9 @@ export default function TodayPlanScreen() {
         </View>
       </View>
       <View style={styles.inputBox}>
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="计划名称" value={title} onChangeText={setTitle} />
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="内容（可选）" value={content} onChangeText={setContent} />
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="计划时间（可选）" value={time} onChangeText={setTime} />
+        <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.input} placeholder="计划名称" value={title} onChangeText={setTitle} />
+        <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.input} placeholder="内容（可选）" value={content} onChangeText={setContent} />
+        <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.input} placeholder="计划时间（可选）" value={time} onChangeText={setTime} />
         <TouchableOpacity style={styles.addBtn} onPress={add}><Text style={styles.addTxt}>+ 添加计划</Text></TouchableOpacity>
       </View>
       <View style={styles.boards}>
@@ -122,6 +122,7 @@ export default function TodayPlanScreen() {
 }
 
 const createStyles = (c: ThemeColors) => StyleSheet.create({
+  plain: { color: c.text },
   container: { paddingVertical: 8 },
   planHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   planHeadTitle: { fontSize: 16, fontWeight: '700' },

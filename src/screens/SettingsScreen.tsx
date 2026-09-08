@@ -93,13 +93,13 @@ export default function SettingsScreen() {
       <View style={styles.card}>
         <Text style={styles.cap}>学期</Text>
         <Text style={styles.fieldLabel}>学期名</Text>
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="如 2026 秋" value={sName} onChangeText={setSName} />
+        <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.input} placeholder="如 2026 秋" value={sName} onChangeText={setSName} />
         <Text style={styles.fieldLabel}>开学时间（点下面选择日期）</Text>
         <TouchableOpacity style={styles.dateBtn} onPress={() => setShowCal(true)}>
           <Text style={styles.dateBtnTxt}>{sStart || '选择开学日期'}</Text>
         </TouchableOpacity>
         <Text style={styles.fieldLabel}>总周数</Text>
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={styles.input} placeholder="如 16" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
+        <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={styles.input} placeholder="如 16" keyboardType="numeric" value={sWeeks} onChangeText={setSWeeks} />
         <View style={styles.row}>
           <TouchableOpacity style={styles.btn} onPress={saveSemester}><Text style={styles.btnTxt}>保存学期</Text></TouchableOpacity>
           <TouchableOpacity style={[styles.btn, { backgroundColor: c.sub }]} onPress={() => { setSName(''); setSStart(''); setSWeeks(''); setFormSemId(null); setMsg('已进入新建模式，填好点保存'); }}><Text style={styles.btnTxt}>新建学期</Text></TouchableOpacity>
@@ -114,7 +114,7 @@ export default function SettingsScreen() {
             <Text style={styles.lbl}>{s.name}{s.id === activeSemesterId ? '  [当前]' : ''}</Text>
             <View style={styles.row}>
               {s.id !== activeSemesterId ? (
-                <TouchableOpacity style={styles.smallBtn} onPress={() => setActiveSemester(s.id)}><Text>首页显示</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.smallBtn} onPress={() => setActiveSemester(s.id)}><Text style={styles.plain}>首页显示</Text></TouchableOpacity>
               ) : null}
               <TouchableOpacity style={styles.smallBtn} onPress={() => importExcelFor(s.id)}><Text style={{ color: c.success }}>导入课表</Text></TouchableOpacity>
               <TouchableOpacity style={styles.smallBtn} onPress={() => removeSemesterAction(s.id)}><Text style={{ color: c.danger }}>删除</Text></TouchableOpacity>
@@ -136,14 +136,14 @@ export default function SettingsScreen() {
         </View>
         <View style={styles.row}>
           <Text style={styles.lbl}>合并两节（{setting.bigPeriodSize}）</Text>
-          <TouchableOpacity onPress={() => setSetting({ ...setting, bigPeriodSize: setting.bigPeriodSize === 2 ? 1 : 2 })}><Text>{setting.bigPeriodSize === 2 ? '开' : '关'}</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => setSetting({ ...setting, bigPeriodSize: setting.bigPeriodSize === 2 ? 1 : 2 })}><Text style={styles.plain}>{setting.bigPeriodSize === 2 ? '开' : '关'}</Text></TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.card}>
         <Text style={styles.cap}>数据安全</Text>
         <TouchableOpacity style={styles.btn} onPress={doBackup}><Text style={styles.btnTxt}>手动备份（导出备份JSON）</Text></TouchableOpacity>
-        <TextInput placeholderTextColor="rgba(150,150,150,0.45)" style={[styles.input, { minHeight: 60 }]} multiline placeholder="粘贴备份 JSON 以恢复" value={restoreText} onChangeText={setRestoreText} />
+        <TextInput placeholderTextColor="rgba(190,190,190,0.8)" style={[styles.input, { minHeight: 60 }]} multiline placeholder="粘贴备份 JSON 以恢复" value={restoreText} onChangeText={setRestoreText} />
         <TouchableOpacity style={[styles.btn, { backgroundColor: c.sub }]} onPress={doRestore}><Text style={styles.btnTxt}>从备份恢复</Text></TouchableOpacity>
         <Text style={styles.lbl}>已有备份：{backups.length} 份</Text>
       </View>
@@ -159,6 +159,7 @@ export default function SettingsScreen() {
 }
 
 const createStyles = (c: ThemeColors) => StyleSheet.create({
+  plain: { color: c.text },
   container: { flex: 1, paddingTop: 40, paddingHorizontal: 12, backgroundColor: c.bg },
   head: { fontSize: 22, fontWeight: '700', marginBottom: 10 },
   card: { backgroundColor: c.card, borderRadius: 10, padding: 12, marginBottom: 10 },

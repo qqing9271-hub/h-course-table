@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import * as Updates from 'expo-updates';
+import { useTheme, ThemeColors } from './src/theme';
 import HomeScreen from './src/screens/HomeScreen';
 import NotesScreen from './src/screens/NotesScreen';
 import ScheduleEditScreen from './src/screens/ScheduleEditScreen';
@@ -18,6 +19,8 @@ const TABS: { key: Tab; label: string }[] = [
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('home');
+  const c = useTheme();
+  const styles = useMemo(() => createStyles(c), [c]);
 
   useEffect(() => {
     (async () => {
@@ -53,17 +56,17 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1 },
+const createStyles = (c: ThemeColors) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: c.bg },
   tabbar: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderColor: '#ddd',
+    borderColor: c.line,
     backgroundColor: '#fff',
     paddingTop: 8,
     paddingBottom: 12,
   },
   tab: { flex: 1, alignItems: 'center' },
-  tabTxt: { color: '#888', fontSize: 13 },
-  tabActive: { color: '#4a90e2', fontWeight: '700' },
+  tabTxt: { color: c.sub, fontSize: 13 },
+  tabActive: { color: c.primary, fontWeight: '700' },
 });
