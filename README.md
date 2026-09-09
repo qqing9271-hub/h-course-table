@@ -1,65 +1,37 @@
 # H课程表
 
-一个「个人课表 + 每日生活管理」的手机 App，自己能用，也能分享给别人用（各自数据独立）。
+一款「个人课表 + 每日生活管理」的手机 App，**自己用，也能分享给别人用**（数据各自独立）。
 
 ## 功能
-- 首页：当天日期、当前学期/第几周、当天课程，支持 当日/一周 切换
-- 课表：手动 / 导入 JSON / 分享别人课表；周次规则（全部/单/双/指定周）；一天节数与两小节一大节可改；可隐藏周六日
-- 今日计划：计划 / 进行中 / 已完成 三板块，可移动、完成、复盘，按日期回看
-- 随笔 / 日记：独立板块
-- 数据安全：自动/手动备份（JSON），可导出/恢复
-- 本地存储，无需账号；跨平台 iOS + Android（Expo / React Native）
+- **首页**：当日/一周课程表（周视图格子等大、可按字号调整），显示当前学期与第几周，可切换日期/周，未开学自动提示并支持跳到开学第一天/第一周
+- **课表**：手动点格子添加/编辑/删除课程；支持 全部/单/双/指定周；一天节数与每节时间可改（默认 10 小节、合并两节=1 大节）；可隐藏周六日
+- **课表导入**：Excel 导入（兼容多行四段式 / 斜杠分隔式 / 一格多门课 / 第N-M节 / 上午下午+一二三四五 等多种格式）、课表二维码生成与扫码导入、导入前选择目标学期
+- **多学期**：可添加多个学期、命名、切换“首页显示”哪个学期，各学期课表独立
+- **今日计划**：计划/进行中/已完成 三板块，可添加、编辑、删除、完成、复盘、按日期查看历史；计划时间可选
+- **随笔/日记**：独立记录，标题可选
+- **数据安全**：自动备份（每 24h、保留最近 30 份）+ 手动备份/恢复
+- **外观**：深色/浅色主题（首页一键切换，黑底白字清晰）；当日/一周字号可分开调
+- **更新**：内置 EAS OTA，接入更新服务器后支持启动自动更新（受网络可达性影响）
+
+## 安装（安卓）
+从 GitHub Releases 下载 APK：
+```text
+https://github.com/qqing9271-hub/h-course-table/releases
+```
+下载 `h-course-table.apk` → 点击安装 → 允许“安装未知来源”。
 
 ## 技术栈
 - Expo SDK 57 + React Native 0.86 + TypeScript
-- zustand（状态）+ AsyncStorage（本地持久化）
-- 领域逻辑单元测试（jest + ts-jest），类型检查 tsc
+- zustand（状态）+ AsyncStorage / expo-file-system（本地持久化与文件）
+- 领域逻辑单元测试（jest + ts-jest），36+ 用例全绿
 
-## 运行
+## 开发
 ```bash
 npm install
-npm start
+npm start          # Expo 开发服务器
+npm test           # 单元测试
+npx tsc --noEmit   # 类型检查
 ```
-用手机安装 **Expo Go** 扫码即可预览；或 `npx expo run:android` / 真机打包。
-
-## 测试
-```bash
-npm test          # 领域逻辑单测
-npx tsc --noEmit  # 类型检查
-```
-
-## 分享 / 导入
-- 在「课表」页导出 JSON 发给别人；别人粘贴导入即成为自己的可编辑课表。
-- 二维码分享：计划接入。
-
-## GitHub / 发布
-
-- 公开仓库，源码 + Release（Android 打包 APK 用 EAS Build）。
-- CI：`.github/workflows/ci.yml` 自动跑单测与类型检查。
-
-### 推到 GitHub
-```bash
-git remote add origin https://github.com/你的用户名/h-course-table.git
-git branch -M main
-git push -u origin main
-```
-
-### 打包 APK（分享给朋友）
-```bash
-npm install -g eas-cli
-eas login
-eas build --platform android --profile preview
-```
-构建完成后，把生成的 APK 挂到 GitHub Release，或在 Expo 后台复制下载链接。
-
-### 打 Tag / Release
-```bash
-git tag -a v1.0.0 -m "第一个可分享版本"
-git push origin v1.0.0
-```
-
-- 公开仓库，源码 + Release（Android 打包 APK 用 EAS Build）。
-- CI：`.github/workflows/ci.yml` 自动跑单测与类型检查。
 
 ## License
 MIT
