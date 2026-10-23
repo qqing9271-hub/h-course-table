@@ -100,7 +100,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
           {days.map((d) => (
             <View key={d} style={styles.gridHeadCell}>
               <Text style={styles.gridHeadTxt}>{WEEK_NAMES[d]}</Text>
-              <Text style={styles.gridHeadDate}>{dateLabels[d - 1]}</Text>
+              <Text numberOfLines={1} allowFontScaling={false} style={styles.gridHeadDate}>{dateLabels[d - 1]}</Text>
             </View>
           ))}
         </View>
@@ -314,7 +314,7 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   gridHeader: { color: c.text, flexDirection: 'row', backgroundColor: c.card, borderRadius: 8, paddingVertical: 6 },
   gridHeadCell: { color: c.text, flex: 1, alignItems: 'center' },
   gridHeadTxt: { color: c.text, fontWeight: '700', fontSize: 13 },
-  gridHeadDate: { color: c.sub, fontSize: 10, marginTop: 2 },
+  gridHeadDate: { color: c.sub, fontSize: 9, lineHeight: 12, marginTop: 1, textAlign: 'center', maxWidth: '100%' },
   gridRow: { color: c.text, flexDirection: 'row', backgroundColor: c.card, borderRadius: 8, marginTop: 4, padding: 4, minHeight: 64 },
   timeCol: { color: c.text, width: 70, justifyContent: 'center', alignItems: 'center', paddingRight: 4 },
   timeTxt: { color: c.text, fontWeight: '700', fontSize: 12 },
