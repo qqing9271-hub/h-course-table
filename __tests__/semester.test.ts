@@ -1,5 +1,5 @@
 import { Semester } from '../src/types';
-import { currentWeek, isBeforeSemester, isAfterSemester, weekDayLabels } from '../src/domain/semester';
+import { currentWeek, isBeforeSemester, isAfterSemester, weekDayLabels, weekdayName } from '../src/domain/semester';
 
 const sem: Semester = { id: 's1', name: '2026 秋', startDate: '2026-09-01', totalWeeks: 20 };
 
@@ -16,6 +16,17 @@ test('AC-S01: 未开学返回 0', () => {
 test('AC-S01: 超过总周数判定学期结束', () => {
   expect(isAfterSemester(sem, '2026-12-31')).toBe(false);
   expect(isAfterSemester(sem, '2027-01-20')).toBe(true);
+});
+test('AC-S03: 日期旁边显示正确的周几', () => {
+  expect(weekdayName('2026-10-19')).toBe('周一');
+  expect(weekdayName('2026-10-23')).toBe('周五');
+  expect(weekdayName('2026-10-24')).toBe('周六');
+  expect(weekdayName('2026-10-25')).toBe('周日');
+  expect(weekdayName('2027-01-01')).toBe('周五');
+});
+test('AC-S03: 日期非法时周几为空串（不崩溃）', () => {
+  expect(weekdayName('')).toBe('');
+  expect(weekdayName('abc')).toBe('');
 });
 test('AC-S02: 周一~周日下方显示对应的几月几日（以周一为首）', () => {
   // 2026-09-01 是周二 -> 该周周一为 8月31日

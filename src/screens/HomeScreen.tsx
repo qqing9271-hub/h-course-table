@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, Alert, PanResponder } from 'react-native';
 import { useAppStore } from '../store/appStore';
 import { useTheme, ThemeColors } from '../theme';
-import { currentWeek, isBeforeSemester, isAfterSemester, parseDate, weekDayLabels } from '../domain/semester';
+import { currentWeek, isBeforeSemester, isAfterSemester, parseDate, weekDayLabels, weekdayName } from '../domain/semester';
 import { buildDayTimeline, buildWeekGrid, bigPeriodRange, bigPeriodLabel } from '../domain/schedule';
 import { coursesForSemester } from '../domain/semesters';
 import CourseEditModal from '../components/CourseEditModal';
@@ -134,6 +134,7 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
           <View style={styles.dateRow}>
             <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, -1))}><Text style={styles.nav}>‹</Text></TouchableOpacity>
             <Text style={styles.date}>{schDate}</Text>
+            <Text style={styles.dateWeek}>{weekdayName(schDate)}</Text>
             <TouchableOpacity onPress={() => setSchDate(addDaysToDate(schDate, 1))}><Text style={styles.nav}>›</Text></TouchableOpacity>
           </View>
           <Text style={styles.sub}>{semester ? semester.name + ' · ' + weekText : '未设置学期'}</Text>
@@ -276,6 +277,7 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   headerRight: { color: c.text, alignItems: 'flex-end' },
   dateRow: { color: c.text, flexDirection: 'row', alignItems: 'center' },
   date: { color: c.text, fontSize: 22, fontWeight: '700' },
+  dateWeek: { color: c.primary, fontSize: 16, fontWeight: '700', marginLeft: 6 },
   nav: { fontSize: 24, color: c.primary, paddingHorizontal: 8 },
   sub: { color: c.sub, marginTop: 2 },
   setBtn: { color: c.text, marginTop: 8, backgroundColor: c.primary, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, alignSelf: 'flex-start' },

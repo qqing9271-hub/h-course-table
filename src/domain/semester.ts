@@ -20,6 +20,15 @@ export function isBeforeSemester(semester: Semester, today: string): boolean {
   return d < s;
 }
 
+const WEEKDAY_NAMES = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+
+/** 返回日期对应的“周几”文案（周一…周日），日期非法返回空串 */
+export function weekdayName(dateStr: string): string {
+  const d = parseDate(dateStr);
+  if (isNaN(d.getTime())) return '';
+  return WEEKDAY_NAMES[(d.getDay() + 6) % 7];
+}
+
 /** 返回 dateStr 所在周（周一起）各天的“几月几日”文案，长度 dayCount */
 export function weekDayLabels(dateStr: string, dayCount: number): string[] {
   const n = dayCount > 0 ? Math.floor(dayCount) : 0;
