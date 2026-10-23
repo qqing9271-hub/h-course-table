@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, Alert, PanResponder } from 'react-native';
 import { useAppStore } from '../store/appStore';
 import { useTheme, ThemeColors } from '../theme';
-import { currentWeek, isBeforeSemester, isAfterSemester, parseDate } from '../domain/semester';
+import { currentWeek, isBeforeSemester, isAfterSemester, parseDate, weekDayLabels } from '../domain/semester';
 import { buildDayTimeline, buildWeekGrid, bigPeriodRange, bigPeriodLabel } from '../domain/schedule';
 import { coursesForSemester } from '../domain/semesters';
 import CourseEditModal from '../components/CourseEditModal';
@@ -92,11 +92,17 @@ export default function HomeScreen({ goTo }: { goTo: (tab: string) => void }) {
   }
 
   function renderWeek() {
+    const dateLabels = weekDayLabels(schDate, 7);
     return (
       <View>
         <View style={styles.gridHeader}>
           <View style={styles.timeCol} />
-          {days.map((d) => (<View key={d} style={styles.gridHeadCell}><Text style={styles.gridHeadTxt}>{WEEK_NAMES[d]}</Text></View>))}
+          {days.map((d) => (
+            <View key={d} style={styles.gridHeadCell}>
+              <Text style={styles.gridHeadTxt}>{WEEK_NAMES[d]}</Text>
+              <Text style={styles.gridHeadDate}>{dateLabels[d - 1]}</Text>
+            </View>
+          ))}
         </View>
         {weekGrid.map((row) => (
           <View key={row.bigPeriod} style={[styles.gridRow, { height: setting.weekFontSize * 3 + 80, overflow: 'hidden' }]}>
@@ -308,6 +314,7 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   gridHeader: { color: c.text, flexDirection: 'row', backgroundColor: c.card, borderRadius: 8, paddingVertical: 6 },
   gridHeadCell: { color: c.text, flex: 1, alignItems: 'center' },
   gridHeadTxt: { color: c.text, fontWeight: '700', fontSize: 13 },
+  gridHeadDate: { color: c.sub, fontSize: 10, marginTop: 2 },
   gridRow: { color: c.text, flexDirection: 'row', backgroundColor: c.card, borderRadius: 8, marginTop: 4, padding: 4, minHeight: 64 },
   timeCol: { color: c.text, width: 70, justifyContent: 'center', alignItems: 'center', paddingRight: 4 },
   timeTxt: { color: c.text, fontWeight: '700', fontSize: 12 },
